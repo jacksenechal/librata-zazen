@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Librata app icon">
+  <defs>
+    <linearGradient id="icon-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0A1733"></stop>
+      <stop offset="35%" stop-color="#1A2C55"></stop>
+      <stop offset="65%" stop-color="#324B78"></stop>
+      <stop offset="88%" stop-color="#C8D3E0"></stop>
+      <stop offset="100%" stop-color="#F5E5C0"></stop>
+    </linearGradient>
+    <radialGradient id="icon-glow" cx="50%" cy="74%" r="42%">
+      <stop offset="0%" stop-color="#FFD98A" stop-opacity="0.55"></stop>
+      <stop offset="60%" stop-color="#F5E5C0" stop-opacity="0.18"></stop>
+      <stop offset="100%" stop-color="#F5E5C0" stop-opacity="0"></stop>
+    </radialGradient>
+    <clipPath id="icon-clip">
+      <rect x="0" y="0" width="512" height="512" rx="112" ry="112"></rect>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#icon-clip)">
+    <rect x="0" y="0" width="512" height="512" fill="url(#icon-sky)"></rect>
+    <rect x="0" y="0" width="512" height="512" fill="url(#icon-glow)"></rect>
+    <circle cx="184" cy="170" r="6" fill="#F2EFE6"></circle>
+    <circle cx="256" cy="130" r="8" fill="#F2EFE6"></circle>
+    <circle cx="328" cy="170" r="6" fill="#F2EFE6"></circle>
+    <path d="M 144 344 A 112 112 0 0 1 368 344" fill="none" stroke="#F2EFE6" stroke-width="6" stroke-linecap="round"></path>
+    <line x1="128" y1="344" x2="384" y2="344" stroke="#F2EFE6" stroke-width="3" stroke-linecap="round" opacity="0.55"></line>
+  </g>
+</svg>

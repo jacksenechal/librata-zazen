@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Librata Zazen app icon">
+  <defs>
+    <clipPath id="icon-clip">
+      <rect x="0" y="0" width="512" height="512" rx="112" ry="112"></rect>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#icon-clip)">
+    <rect x="0" y="0" width="512" height="512" fill="#EDEDEB"></rect>
+    <circle cx="184" cy="170" r="6" fill="#181818"></circle>
+    <circle cx="256" cy="130" r="8" fill="#181818"></circle>
+    <circle cx="328" cy="170" r="6" fill="#181818"></circle>
+    <path d="M 144 344 A 112 112 0 0 1 368 344" fill="none" stroke="#181818" stroke-width="6" stroke-linecap="round"></path>
+    <line x1="128" y1="344" x2="384" y2="344" stroke="#181818" stroke-width="3" stroke-linecap="round" opacity="0.55"></line>
+  </g>
+</svg>
