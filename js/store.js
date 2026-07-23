@@ -44,16 +44,30 @@ function migrate(raw) {
   return { ...raw, schema: CURRENT_SCHEMA };
 }
 
+// crypto.randomUUID() is only defined in secure contexts (https or
+// localhost); fall back to a non-cryptographic v4-shaped id so the app
+// still boots when self-hosted over plain http on a LAN.
+function uuid() {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
 function bells(count, gapSec, soundId) {
   return { count, gapSec, soundId };
 }
 
 function section(name, durationSec, bellSpec) {
-  return { id: crypto.randomUUID(), name, durationSec, bells: bellSpec };
+  return { id: uuid(), name, durationSec, bells: bellSpec };
 }
 
 function session(name, description, sections, closing) {
-  return { id: crypto.randomUUID(), name, description, sections, closing };
+  return { id: uuid(), name, description, sections, closing };
 }
 
 /** The four seed sessions from PLAN §6. */

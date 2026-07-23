@@ -82,7 +82,14 @@ export function confirmModal({ message, confirmLabel = 'Delete', cancelLabel = '
   });
 }
 
-/** Wires press-and-hold repeat behaviour onto a stepper button. */
+/**
+ * Wires press-and-hold repeat behaviour onto a stepper button. Release
+ * listeners are bound to `window` (not `el`): a hold-triggered store
+ * mutation can cause the current screen to rerender mid-press, detaching
+ * `el` before the browser dispatches its pointerup — if that pointerup
+ * were only wired to `el`, `stop()` would never run and the repeat
+ * interval would fire forever.
+ */
 export function bindHold(el, fn, { delay = 420, interval = 110 } = {}) {
   let timeoutId = null;
   let intervalId = null;
@@ -91,6 +98,8 @@ export function bindHold(el, fn, { delay = 420, interval = 110 } = {}) {
     clearInterval(intervalId);
     timeoutId = null;
     intervalId = null;
+    window.removeEventListener('pointerup', stop);
+    window.removeEventListener('pointercancel', stop);
   };
   const start = (e) => {
     e.preventDefault();
@@ -98,9 +107,8 @@ export function bindHold(el, fn, { delay = 420, interval = 110 } = {}) {
     timeoutId = setTimeout(() => {
       intervalId = setInterval(fn, interval);
     }, delay);
+    window.addEventListener('pointerup', stop);
+    window.addEventListener('pointercancel', stop);
   };
   el.addEventListener('pointerdown', start);
-  el.addEventListener('pointerup', stop);
-  el.addEventListener('pointerleave', stop);
-  el.addEventListener('pointercancel', stop);
 }

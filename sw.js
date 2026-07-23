@@ -5,7 +5,7 @@
  * for the file map this precache list is derived from.
  */
 
-const CACHE_NAME = "zazen-v1";
+const CACHE_NAME = "zazen-v2";
 
 const PRECACHE_URLS = [
   "./",
@@ -21,11 +21,12 @@ const PRECACHE_URLS = [
   "js/engine.js",
   "js/icons.js",
   "js/main.js",
+  "js/ui/util.js",
   "js/ui/home.js",
   "js/ui/library.js",
   "js/ui/player.js",
   "js/ui/editor.js",
-  "js/ui/section-editor.js",
+  "js/ui/sectionEditor.js",
   "js/ui/settings.js",
 
   "assets/fonts/fonts.css",
