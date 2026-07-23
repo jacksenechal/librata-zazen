@@ -28,6 +28,10 @@ export function render(root, ctx) {
         <section class="settings-block">
           <p class="label">Theme</p>
           <div class="theme-radio-list" role="radiogroup" aria-label="Theme">
+            <button type="button" class="theme-row" role="radio" aria-checked="${settings.theme === 'auto'}" data-theme-option="auto">
+              <span class="radio-dot" aria-hidden="true"></span>
+              <span>Auto — match the system</span>
+            </button>
             <button type="button" class="theme-row" role="radio" aria-checked="${settings.theme === 'carta'}" data-theme-option="carta">
               <span class="radio-dot" aria-hidden="true"></span>
               <span>Carta — paper</span>

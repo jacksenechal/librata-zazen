@@ -57,13 +57,28 @@ function sameParams(a, b) {
   return ak.every((k) => a[k] === b[k]);
 }
 
+const darkSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+/** Resolves the stored theme setting to a concrete theme: 'auto' follows the
+ * OS light/dark preference (light -> carta, dark -> dawn); anything else
+ * passes through unchanged. */
+function resolveTheme(theme) {
+  if (theme === 'auto') return darkSchemeQuery.matches ? 'dawn' : 'carta';
+  return theme;
+}
+
 function applyTheme() {
-  document.documentElement.setAttribute('data-theme', store.getSettings().theme);
+  document.documentElement.setAttribute('data-theme', resolveTheme(store.getSettings().theme));
   const themeColor = getComputedStyle(document.documentElement).getPropertyValue('--sky-midnight').trim();
   if (themeColor) {
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', themeColor);
   }
 }
+
+// Follow the system live while the setting is 'auto'.
+darkSchemeQuery.addEventListener('change', () => {
+  if (store.getSettings().theme === 'auto') applyTheme();
+});
 
 function reducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;

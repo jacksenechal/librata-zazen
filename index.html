@@ -18,6 +18,9 @@
           var doc = JSON.parse(raw);
           if (doc && doc.settings && doc.settings.theme) theme = doc.settings.theme;
         }
+        if (theme === 'auto') {
+          theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dawn' : 'carta';
+        }
         document.documentElement.setAttribute('data-theme', theme);
       } catch (e) {
         document.documentElement.setAttribute('data-theme', 'carta');

@@ -27,7 +27,7 @@ Section (track)
 Bells
   count (1–5), gapSec (1–10), soundId
 Settings
-  volume (0–1), keepAwake (bool), theme ('carta'|'dawn')
+  volume (0–1), keepAwake (bool), theme ('auto'|'carta'|'dawn')
 PlaybackState (persisted)
   sessionId, positionSec, playing=false on restore
 ```
@@ -91,7 +91,7 @@ All screens sit on `var(--gradient-sky)` (Carta = soft paper-grey wash), single 
 ### 3.6 Settings
 - Bell volume — minimal custom slider (thin track, small circular handle; style the native range's pseudo-elements or hand-roll with pointer events). Releasing previews one strike.
 - Keep screen awake — toggle.
-- Theme — `Carta — paper` / `Dawn — night sky` radio (sets `data-theme` on `<html>`).
+- Theme — `Auto — match the system` / `Carta — paper` / `Dawn — night sky` radio (`auto` follows `prefers-color-scheme`; resolved theme sets `data-theme` on `<html>`).
 - About — wordmark, version, and the Layer-B monospace audit block (AGPLv3, 0.00% telemetry, 100% offline — DS guide §1). Don't blend registers: poetic copy elsewhere, monospace spec only here.
 
 ## 4 · Sounds
