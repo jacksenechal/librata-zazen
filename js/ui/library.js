@@ -29,7 +29,9 @@ export function render(root, ctx) {
         <h1 class="h2">Sessions</h1>
         <button type="button" class="icon-btn" data-action="new" aria-label="New session">${icon('plus', 22)}</button>
       </header>
-      ${sessions.length ? `<ul class="session-list">${rows}</ul>` : '<p class="library-empty">No sessions yet.</p>'}
+      <div class="screen-scroll">
+        ${sessions.length ? `<ul class="session-list">${rows}</ul>` : '<p class="library-empty">No sessions yet.</p>'}
+      </div>
     </div>
   `;
 

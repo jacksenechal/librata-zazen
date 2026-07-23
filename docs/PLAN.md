@@ -65,9 +65,7 @@ All screens sit on `var(--gradient-sky)` (Carta = soft paper-grey wash), single 
   - **Section countdown** — Cormorant numerals, huge (`clamp(64px, 16vw, 96px)`), tabular. The remaining time in the *current section*.
   - Caption: `Section 2 of 3 · 24:10 remaining` (whole-session remaining).
 - **Progress bar** — one 2px hairline, full width. Fill = ink (`--fg-pearl`, which is ink on Carta); track = `--ink-faint`/hairline. Section boundaries are 1px ticks or 3px dots on the track. Elapsed / total in micro numerals at the ends. Draggable to scrub (pointer events; large invisible hit area ≥44px tall).
-- **Transport** — one row, flex+gap, all ≥48px targets:
-  `skip-back · −30 · play/pause · +30 · skip-forward`
-  Phosphor thin style: skip-back, arrow-counter-clockwise (micro `30` beneath), 72px circle with hairline border for play/pause, arrow-clockwise, skip-forward. Press states: 6% darken, 120ms, no scale (DS motion rules).
+- **Transport** — a single centered 72px circle with a hairline border for play/pause; no other on-screen transport buttons. The progress-bar scrub and tracklist-row taps are the seek mechanisms. Press states: 6% darken, 120ms, no scale (DS motion rules). Lockscreen/headphone controls (seek ±30s, previous/next section) still work via the Media Session handlers registered in the engine.
 - **Tracklist** — below, like an album:
   - Row: roman numeral (Cormorant), section name, right-aligned duration.
   - Completed sections at `--ink-quiet`; current row in full ink with a thin per-row progress hairline underneath; future rows normal.

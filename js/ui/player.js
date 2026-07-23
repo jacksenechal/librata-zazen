@@ -94,13 +94,11 @@ export function render(root, ctx) {
           </div>
         </div>
         <div class="player-transport">
-          <button type="button" class="transport-btn" data-action="skip-back" aria-label="Previous section">${icon('skip-back', 26)}</button>
-          <button type="button" class="transport-btn transport-seek" data-action="seek-back" aria-label="Back 30 seconds">${icon('arrow-counter-clockwise', 26)}<span class="transport-seek-label" aria-hidden="true">30</span></button>
           <button type="button" class="transport-playpause" data-action="toggle" data-role="playpause" aria-label="Play">${icon('play', 28)}</button>
-          <button type="button" class="transport-btn transport-seek" data-action="seek-forward" aria-label="Forward 30 seconds">${icon('arrow-clockwise', 26)}<span class="transport-seek-label" aria-hidden="true">30</span></button>
-          <button type="button" class="transport-btn" data-action="skip-forward" aria-label="Next section">${icon('skip-forward', 26)}</button>
         </div>
-        <ol class="tracklist">${trackRows}</ol>
+        <div class="player-tracklist-scroll" data-role="tracklist-scroll">
+          <ol class="tracklist">${trackRows}</ol>
+        </div>
       </div>
     `;
 
@@ -115,22 +113,29 @@ export function render(root, ctx) {
       elapsed: root.querySelector('[data-role="elapsed"]'),
       playpause: root.querySelector('[data-role="playpause"]'),
       trackRows: Array.from(root.querySelectorAll('.track-row')),
+      tracklistScroll: root.querySelector('[data-role="tracklist-scroll"]'),
     };
     lastPlaying = null;
     lastSectionIndex = null;
 
     root.querySelector('[data-action="close"]').addEventListener('click', () => navigate('home'));
     root.querySelector('[data-action="toggle"]').addEventListener('click', () => engine.toggle());
-    root.querySelector('[data-action="seek-back"]').addEventListener('click', () => engine.seekBy(-30));
-    root.querySelector('[data-action="seek-forward"]').addEventListener('click', () => engine.seekBy(30));
-    root.querySelector('[data-action="skip-back"]').addEventListener('click', () => engine.skipBack());
-    root.querySelector('[data-action="skip-forward"]').addEventListener('click', () => engine.skipForward());
     nodes.trackRows.forEach((rowEl) => {
       rowEl.addEventListener('click', () => engine.seekToSection(Number(rowEl.dataset.index)));
     });
 
     wireScrub(nodes.progress, nodes.track, total);
+    updateTracklistEdge();
+    window.addEventListener('resize', updateTracklistEdge);
     updateTick(engine.getState());
+  }
+
+  /** A quiet hairline on the tracklist's top edge only when it actually has
+   * more content than fits — an overflow affordance, not a permanent divider. */
+  function updateTracklistEdge() {
+    const el = nodes?.tracklistScroll;
+    if (!el) return;
+    el.classList.toggle('screen-scroll--edge', el.scrollHeight > el.clientHeight + 1);
   }
 
   function wireScrub(progressEl, trackEl, total) {
@@ -212,6 +217,7 @@ export function render(root, ctx) {
   unsubscribers.push(engine.on('complete', () => paint()));
 
   return () => {
+    window.removeEventListener('resize', updateTracklistEdge);
     unsubscribers.forEach((unsub) => {
       if (typeof unsub === 'function') unsub();
     });

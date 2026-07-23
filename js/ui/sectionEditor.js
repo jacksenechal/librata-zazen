@@ -40,32 +40,34 @@ export function render(root, ctx) {
         <button type="button" class="icon-btn" data-action="back" aria-label="Back">${icon('caret-left', 22)}</button>
         <span class="topbar-spacer" aria-hidden="true"></span>
       </header>
-      ${isClosing ? '<h1 class="h2 text-center">Closing</h1>' : `
-        <input type="text" class="editor-name-input text-center" data-field="name" value="${escapeHtml(section.name)}" aria-label="Section name" placeholder="Section name" />
-      `}
-      ${isClosing ? '' : `
-        <div class="duration-stepper">
-          <button type="button" class="stepper-btn" data-action="dec-duration" aria-label="Decrease duration" ${section.durationSec <= MIN_DURATION ? 'disabled' : ''}>${icon('minus', 18)}</button>
-          <div class="duration-display numeric">${formatClock(section.durationSec)}</div>
-          <button type="button" class="stepper-btn" data-action="inc-duration" aria-label="Increase duration">${icon('plus', 18)}</button>
+      <div class="screen-scroll section-editor-body">
+        ${isClosing ? '<h1 class="h2 text-center">Closing</h1>' : `
+          <input type="text" class="editor-name-input text-center" data-field="name" value="${escapeHtml(section.name)}" aria-label="Section name" placeholder="Section name" />
+        `}
+        ${isClosing ? '' : `
+          <div class="duration-stepper">
+            <button type="button" class="stepper-btn" data-action="dec-duration" aria-label="Decrease duration" ${section.durationSec <= MIN_DURATION ? 'disabled' : ''}>${icon('minus', 18)}</button>
+            <div class="duration-display numeric">${formatClock(section.durationSec)}</div>
+            <button type="button" class="stepper-btn" data-action="inc-duration" aria-label="Increase duration">${icon('plus', 18)}</button>
+          </div>
+        `}
+        <div class="field-block">
+          <p class="label">Bells</p>
+          <div class="bell-circles">${bellCircles}</div>
         </div>
-      `}
-      <div class="field-block">
-        <p class="label">Bells</p>
-        <div class="bell-circles">${bellCircles}</div>
-      </div>
-      ${bells.count > 1 ? `
-        <div class="gap-stepper">
-          <button type="button" class="stepper-btn" data-action="dec-gap" aria-label="Decrease gap" ${bells.gapSec <= MIN_GAP ? 'disabled' : ''}>${icon('minus', 16)}</button>
-          <span class="numeric">${bells.gapSec}s</span>
-          <button type="button" class="stepper-btn" data-action="inc-gap" aria-label="Increase gap" ${bells.gapSec >= MAX_GAP ? 'disabled' : ''}>${icon('plus', 16)}</button>
+        ${bells.count > 1 ? `
+          <div class="gap-stepper">
+            <button type="button" class="stepper-btn" data-action="dec-gap" aria-label="Decrease gap" ${bells.gapSec <= MIN_GAP ? 'disabled' : ''}>${icon('minus', 16)}</button>
+            <span class="numeric">${bells.gapSec}s</span>
+            <button type="button" class="stepper-btn" data-action="inc-gap" aria-label="Increase gap" ${bells.gapSec >= MAX_GAP ? 'disabled' : ''}>${icon('plus', 16)}</button>
+          </div>
+        ` : ''}
+        <div class="field-block">
+          <p class="label">Sound</p>
+          <div class="sound-list" role="radiogroup" aria-label="Bell sound">${soundRows}</div>
         </div>
-      ` : ''}
-      <div class="field-block">
-        <p class="label">Sound</p>
-        <div class="sound-list" role="radiogroup" aria-label="Bell sound">${soundRows}</div>
+        ${canRemove ? '<button type="button" class="ghost-row" data-action="remove">Remove section</button>' : ''}
       </div>
-      ${canRemove ? '<button type="button" class="ghost-row" data-action="remove">Remove section</button>' : ''}
     </div>
   `;
 

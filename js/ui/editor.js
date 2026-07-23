@@ -40,17 +40,19 @@ export function render(root, ctx) {
         <input type="text" class="editor-name-input" data-field="name" value="${escapeHtml(session.name)}" aria-label="Session name" placeholder="Session name" />
         <input type="text" class="editor-desc-input" data-field="description" value="${escapeHtml(session.description || '')}" aria-label="Description" placeholder="Description" />
       </div>
-      <ul class="section-rows">
-        ${sectionRows}
-        <li class="section-row closing-row">
-          <div class="section-row-reorder" aria-hidden="true"></div>
-          <button type="button" class="section-row-main" data-action="edit-closing">
-            <span class="section-row-name">Closing</span>
-            <span class="section-row-caption caption">${statLine([`${closing.count} ${closingBellWord}`, closingSoundName])}</span>
-          </button>
-        </li>
-      </ul>
-      <button type="button" class="ghost-row" data-action="add-section">${icon('plus', 18)} Add section</button>
+      <div class="screen-scroll">
+        <ul class="section-rows">
+          ${sectionRows}
+          <li class="section-row closing-row">
+            <div class="section-row-reorder" aria-hidden="true"></div>
+            <button type="button" class="section-row-main" data-action="edit-closing">
+              <span class="section-row-name">Closing</span>
+              <span class="section-row-caption caption">${statLine([`${closing.count} ${closingBellWord}`, closingSoundName])}</span>
+            </button>
+          </li>
+        </ul>
+        <button type="button" class="ghost-row" data-action="add-section">${icon('plus', 18)} Add section</button>
+      </div>
       <footer class="editor-footer">
         <button type="button" class="btn-ghost" data-action="duplicate">Duplicate</button>
         <button type="button" class="btn-ghost" data-action="delete">Delete</button>
