@@ -1,0 +1,28 @@
+/* Self-hosted webfonts — Librata Zazen ships fully offline (no CDN). */
+
+@font-face {
+  font-family: "Cormorant Garamond";
+  src: url("./cormorant/CormorantGaramond-Light.woff2") format("woff2");
+  font-weight: 300; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Cormorant Garamond";
+  src: url("./cormorant/CormorantGaramond-Regular.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+
+@font-face {
+  font-family: "Manrope";
+  src: url("./manrope/Manrope-Regular.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Manrope";
+  src: url("./manrope/Manrope-Medium.woff2") format("woff2");
+  font-weight: 500; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Manrope";
+  src: url("./manrope/Manrope-SemiBold.woff2") format("woff2");
+  font-weight: 600; font-style: normal; font-display: swap;
+}

@@ -1,0 +1,650 @@
+/* =====================================================================
+   Librata — Design Tokens
+   Source: Librata Design System (colors_and_type.css), verbatim except:
+   - Google Fonts @import replaced by self-hosted fonts (offline-first).
+
+   Two themes share one token set:
+
+     • Default / Theme A — DAWN  (canonical phone mode)
+         Midnight → Indigo → Dawn sky gradient · Cormorant Garamond Light
+         · frosted glass overlays & subtle glows · 360ms ease-out motion.
+
+     • Theme B — CARTA  (e-paper / grayscale mode)
+         Opt in by setting  data-theme="carta"  on <html> or any wrapper.
+         Carta is Dawn rendered in grayscale — SAME structure, radii,
+         soft shadows, frosted glass, dashed slot placeholders, Cormorant
+         serif and gentle motion. ONLY the palette changes: the dawn sky
+         becomes a soft paper-and-ink grayscale surface, suits read as
+         two greys, and chromatic bloom retires. Built for the reflective
+         greyscale panels of Onyx Boox, Supernote, Boox Palma and kin.
+   ===================================================================== */
+
+@import url("../assets/fonts/fonts.css");
+
+:root {
+  /* -------------------------------------------------------------------
+     COLOR — the sky stack (top → bottom of the dawn gradient)
+     ------------------------------------------------------------------- */
+  --sky-midnight:   #0A1733;   /* zenith — deepest indigo */
+  --sky-indigo:     #1A2C55;   /* upper sky with stars */
+  --sky-twilight:   #324B78;   /* mid sky transition */
+  --sky-dawn:       #6E8AB7;   /* soft blue near horizon */
+  --sky-mist:       #C8D3E0;   /* cool pearl haze */
+  --sky-cream:      #F5E5C0;   /* warm sun glow on horizon */
+  --sky-snow:       #F2F5F8;   /* lowest mountain snow */
+
+  /* The canonical full-sky gradient. Always vertical, always this order. */
+  --gradient-sky: linear-gradient(
+    180deg,
+    var(--sky-midnight) 0%,
+    var(--sky-indigo)   22%,
+    var(--sky-twilight) 48%,
+    var(--sky-dawn)     68%,
+    var(--sky-mist)     82%,
+    var(--sky-cream)    96%,
+    var(--sky-snow)     100%
+  );
+
+  /* A shorter sky used for menus and modals — top half of the dawn only */
+  --gradient-sky-night: linear-gradient(
+    180deg,
+    var(--sky-midnight) 0%,
+    var(--sky-indigo) 60%,
+    var(--sky-twilight) 100%
+  );
+
+  /* -------------------------------------------------------------------
+     COLOR — librata bloom
+     A subtle overlay of dawn tints (rose, violet, mint, gold) layered
+     over the sky gradient. Never the primary surface — always low-
+     opacity, painted with screen/lighten blend modes. Captures the
+     faint chromatic shimmer of a real horizon.
+     ------------------------------------------------------------------- */
+  --bloom-rose:     #E8A5A8;   /* soft alpenglow rose */
+  --bloom-violet:   #8B7AB8;   /* twilight violet */
+  --bloom-mint:     #9EC9B8;   /* faint zodiacal mint */
+  --bloom-amber:    #F0C880;   /* warm horizon amber */
+  --bloom-blue:     #7FA8D6;   /* high-altitude periwinkle */
+
+  /* Composite overlay — paint over the sky gradient with mix-blend-mode: screen.
+     Made of soft, off-center radial blobs at low opacity. */
+  --overlay-dawn-bloom:
+    radial-gradient(ellipse 70% 35% at 20% 12%,  rgba(139,122,184,0.35) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 30% at 78% 28%,  rgba(127,168,214,0.30) 0%, transparent 70%),
+    radial-gradient(ellipse 90% 45% at 30% 78%,  rgba(232,165,168,0.32) 0%, transparent 65%),
+    radial-gradient(ellipse 70% 30% at 72% 88%,  rgba(240,200,128,0.38) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 22% at 50% 96%,  rgba(158,201,184,0.22) 0%, transparent 70%);
+
+  /* -------------------------------------------------------------------
+     COLOR — accents (derived from the librata bloom)
+     These replace the old single-gold accent. Gold is demoted to a
+     special-occasion highlight (win bloom, currentColor for sparkles).
+     ------------------------------------------------------------------- */
+  --accent-violet:    #8B7AB8;
+  --accent-periwinkle:#7FA8D6;
+  --accent-mint:      #9EC9B8;
+  --accent-rose:      #E8A5A8;
+  --accent-amber:     #F0C880;
+
+  /* The signature "shimmer" — a soft chromatic gradient used for
+     primary actions, the wordmark glow, the current-streak indicator.
+     Pastel and ethereal; never saturated. */
+  --shimmer-bloom: linear-gradient(
+    105deg,
+    #C9B8DC 0%,
+    #E8BDB8 32%,
+    #F1D7A8 58%,
+    #BAD6D0 88%,
+    #B0C6E0 100%
+  );
+  --shimmer-bloom-hover: linear-gradient(
+    105deg,
+    #D3C3E4 0%,
+    #F0C9C4 32%,
+    #F6E1B8 58%,
+    #C6DDD7 88%,
+    #BCCFE6 100%
+  );
+  /* A faint sheen overlay painted on top of the shimmer pill to give
+     the glassy highlight on the upper edge. */
+  --shimmer-sheen: linear-gradient(180deg,
+    rgba(255,255,255,0.55) 0%,
+    rgba(255,255,255,0.10) 38%,
+    rgba(255,255,255,0) 60%
+  );
+
+  /* Special-occasion gold — used very sparingly (win bloom, streak dot). */
+  --gold-warm:      #E8C66B;
+  --gold-glow:      #FFD98A;
+  --gold-deep:      #B98E2C;
+
+  /* Suit colors — playing-card convention, not part of the accent system. */
+  --ember:          #C75B4A;
+  --ember-deep:     #8E3A2C;
+  --slate-suit:     #2E4163;
+  --slate-suit-2:   #14213D;
+
+  /* -------------------------------------------------------------------
+     COLOR — foreground / text
+     ------------------------------------------------------------------- */
+  --fg-pearl:       #F2EFE6;   /* on dark sky — warm off-white */
+  --fg-pearl-soft:  rgba(242, 239, 230, 0.72);
+  --fg-pearl-quiet: rgba(242, 239, 230, 0.50);
+  --fg-indigo:      #0F1F40;   /* on light sky — deep night */
+  --fg-indigo-soft: rgba(15, 31, 64, 0.72);
+  --fg-indigo-quiet:rgba(15, 31, 64, 0.50);
+
+  /* -------------------------------------------------------------------
+     COLOR — surfaces
+     ------------------------------------------------------------------- */
+  --card-face:      #FAF7EE;   /* playing-card face — warm ivory, never pure white */
+  --card-face-edge: #E8E0CC;   /* the edge tone of a card */
+  --card-back:      var(--sky-indigo); /* the back of a card */
+  --glass-dark:     rgba(10, 23, 51, 0.55);
+  --glass-light:    rgba(245, 229, 192, 0.45);
+  --glass-blur:     blur(20px) saturate(140%);
+  --scrim:          rgba(10, 23, 51, 0.55);  /* dim behind sheets & modals */
+
+  --border-hairline-light: rgba(242, 239, 230, 0.12);
+  --border-hairline-dark:  rgba(15, 31, 64, 0.08);
+  --border-card:           rgba(15, 31, 64, 0.10);
+
+  /* -------------------------------------------------------------------
+     TYPOGRAPHY — families
+     ------------------------------------------------------------------- */
+  --font-display: "Cormorant Garamond", "Cormorant", "Garamond", "EB Garamond", serif;
+  --font-ui:      "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-numeric: "Cormorant Garamond", "Garamond", serif; /* card pips, timer */
+
+  /* TYPOGRAPHY — size scale (clamp for fluidity, base = phone) */
+  --fs-display-xl: clamp(48px, 8vw, 88px);   /* title screen wordmark */
+  --fs-display-lg: clamp(36px, 5vw, 56px);   /* win screen headline */
+  --fs-display-md: clamp(28px, 4vw, 40px);   /* section heads */
+  --fs-h1:         28px;
+  --fs-h2:         22px;
+  --fs-h3:         18px;
+  --fs-body:       16px;
+  --fs-caption:    13px;
+  --fs-micro:      11px;
+  --fs-card-pip-lg: 28px;   /* corner pip on card face */
+  --fs-card-pip-sm: 14px;
+
+  /* TYPOGRAPHY — weight */
+  --fw-light:    300;
+  --fw-regular:  400;
+  --fw-medium:   500;
+  --fw-semibold: 600;
+
+  /* TYPOGRAPHY — tracking */
+  --tracking-display: 0.02em;
+  --tracking-wordmark: 0.32em;  /* LIBRATA wordmark — Cormorant Light all caps */
+  --tracking-label:   0.08em;   /* small caps labels */
+  --tracking-ui:      0;
+  --tracking-tight:  -0.01em;
+
+  /* TYPOGRAPHY — line height */
+  --lh-display: 1.05;
+  --lh-tight:   1.2;
+  --lh-body:    1.55;
+  --lh-ui:      1.35;
+
+  /* -------------------------------------------------------------------
+     SPACING — 4px base grid
+     ------------------------------------------------------------------- */
+  --space-0:   0;
+  --space-1:   4px;
+  --space-2:   8px;
+  --space-3:   12px;
+  --space-4:   16px;
+  --space-5:   20px;
+  --space-6:   24px;
+  --space-7:   32px;
+  --space-8:   40px;
+  --space-9:   48px;     /* min touch target */
+  --space-10:  56px;     /* top-bar height */
+  --space-11:  72px;
+  --space-12:  96px;
+
+  /* -------------------------------------------------------------------
+     RADII
+     ------------------------------------------------------------------- */
+  --radius-card:    6px;     /* playing card corners — clean, not cute */
+  --radius-sm:      4px;
+  --radius-md:      10px;    /* secondary buttons, chips */
+  --radius-lg:      14px;    /* primary action surface */
+  --radius-surface: 20px;    /* modals, sheets */
+  --radius-xl:      28px;    /* very large containers */
+  --radius-pill:    999px;   /* used only for circular icon buttons & badges */
+
+  /* -------------------------------------------------------------------
+     SHADOWS / ELEVATION
+     ------------------------------------------------------------------- */
+  /* Card at rest on the play field — soft, low, indigo-tinted */
+  --shadow-card:
+    0 1px 0 rgba(15, 31, 64, 0.08),
+    0 2px 6px rgba(15, 31, 64, 0.10),
+    0 8px 18px rgba(15, 31, 64, 0.10);
+
+  /* Card lifted (being dragged) — pearl glow, never gold */
+  --shadow-card-lifted:
+    0 2px 0 rgba(15, 31, 64, 0.10),
+    0 10px 24px rgba(15, 31, 64, 0.22),
+    0 0 0 1px rgba(242, 239, 230, 0.55),
+    0 0 28px rgba(242, 239, 230, 0.55);
+
+  /* Pearl glow — used on selection, focus, the primary CTA's animated ring */
+  --shadow-glow-pearl:
+    0 0 0 1px rgba(242, 239, 230, 0.45),
+    0 0 22px rgba(242, 239, 230, 0.45);
+
+  /* Floating panels (top bar, menu sheet) */
+  --shadow-glass:
+    0 1px 0 rgba(242, 239, 230, 0.06) inset,
+    0 12px 32px rgba(5, 12, 28, 0.35);
+
+  /* Modal */
+  --shadow-modal:
+    0 32px 64px rgba(5, 12, 28, 0.55);
+
+  /* -------------------------------------------------------------------
+     MOTION
+     ------------------------------------------------------------------- */
+  --ease-poise:  cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur-quick:    180ms;
+  --dur-base:     360ms;
+  --dur-slow:     720ms;
+  --dur-screen:   720ms;
+  --dur-win:      1600ms;
+
+  /* -------------------------------------------------------------------
+     Z-INDEX
+     ------------------------------------------------------------------- */
+  --z-board:    1;
+  --z-card:     10;
+  --z-dragging: 100;
+  --z-topbar:   200;
+  --z-sheet:    300;
+  --z-modal:    400;
+  --z-toast:    500;
+}
+
+/* =====================================================================
+   SEMANTIC ELEMENT STYLES
+   Use these on raw HTML elements; cards/components compose them.
+   ===================================================================== */
+
+html, body {
+  font-family: var(--font-ui);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--fg-pearl);
+  background: var(--gradient-sky);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.librata-wordmark {
+  font-family: var(--font-display);
+  font-weight: var(--fw-light);
+  letter-spacing: var(--tracking-wordmark);
+  text-transform: uppercase;
+}
+
+h1, .h1 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-light);
+  font-size: var(--fs-display-lg);
+  line-height: var(--lh-display);
+  letter-spacing: var(--tracking-display);
+  margin: 0;
+}
+
+h2, .h2 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-light);
+  font-size: var(--fs-display-md);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-display);
+  margin: 0;
+}
+
+h3, .h3 {
+  font-family: var(--font-ui);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-h3);
+  line-height: var(--lh-ui);
+  letter-spacing: var(--tracking-ui);
+  margin: 0;
+}
+
+p, .body {
+  font-family: var(--font-ui);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  margin: 0;
+}
+
+.caption {
+  font-family: var(--font-ui);
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-caption);
+  line-height: var(--lh-ui);
+  color: var(--fg-pearl-soft);
+}
+
+.label {
+  font-family: var(--font-ui);
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-micro);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--fg-pearl-soft);
+}
+
+.numeric, .timer, .stat {
+  font-family: var(--font-numeric);
+  font-weight: var(--fw-regular);
+  font-variant-numeric: lining-nums tabular-nums;
+  letter-spacing: var(--tracking-tight);
+}
+
+code, .mono {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.92em;
+}
+
+/* Primary button — pearl glass.
+   Clean, light, slightly rounded rectangle. Pearl background floats
+   above the sky with a hairline white edge and a soft drop shadow.
+   No animation, no gradient — restraint is the brand. */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: 52px;
+  padding: 0 var(--space-7);
+  font-family: var(--font-ui);
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-body);
+  letter-spacing: 0.01em;
+  color: var(--sky-midnight);
+  background: rgba(250, 247, 238, 0.92);
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: var(--radius-lg);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.9),
+    0 8px 24px rgba(10,23,51,0.28),
+    0 2px 6px rgba(10,23,51,0.18);
+  cursor: pointer;
+  transition: background var(--dur-quick) var(--ease-poise),
+              transform var(--dur-quick) var(--ease-poise);
+}
+.btn-primary:hover  { background: rgba(255, 253, 247, 1); }
+.btn-primary:active { transform: translateY(1px); background: rgba(244, 240, 228, 0.95); }
+
+/* Secondary button — glass */
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: 52px;
+  padding: 0 var(--space-6);
+  font-family: var(--font-ui);
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-body);
+  color: var(--fg-pearl);
+  background: var(--glass-dark);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-hairline-light);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: opacity var(--dur-quick) var(--ease-poise);
+}
+.btn-secondary:hover  { opacity: 0.86; }
+.btn-secondary:active { background: rgba(10, 23, 51, 0.72); }
+
+/* Ghost — text-only */
+.btn-ghost {
+  background: transparent;
+  border: 0;
+  color: var(--fg-pearl-soft);
+  font-family: var(--font-ui);
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-body);
+  padding: var(--space-2) var(--space-3);
+  cursor: pointer;
+  transition: color var(--dur-quick) var(--ease-poise);
+}
+.btn-ghost:hover { color: var(--fg-pearl); }
+
+/* Dawn bloom — opt-in overlay for the sky.
+   Apply to a full-bleed wrapper that ALREADY paints --gradient-sky
+   underneath, OR use the ::before form below to add the bloom over
+   the wrapper's own background. */
+.sky-with-bloom {
+  position: relative;
+  background: var(--gradient-sky);
+  isolation: isolate; /* keep the screen blend scoped */
+}
+.sky-with-bloom::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: var(--overlay-dawn-bloom);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 0;
+}
+.sky-with-bloom > * { position: relative; z-index: 1; }
+
+/* Glass panel surface */
+.glass-panel {
+  background: var(--glass-dark);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-hairline-light);
+  border-radius: var(--radius-surface);
+  box-shadow: var(--shadow-glass);
+}
+
+
+/* =====================================================================
+   THEME B — CARTA  (e-paper / grayscale mode)
+
+   Opt in by setting  data-theme="carta"  on <html>, <body>, or any
+   wrapper element.
+
+   Design intent — Carta is NOT a stripped-down black-and-white reduction.
+   It is the Dawn design language with one variable swapped: colour. Every
+   structural decision Dawn makes survives untouched —
+
+     · radii (rounded cards, 14px CTAs, 20px sheets)   — inherited
+     · soft elevation shadows                          — recoloured neutral
+     · frosted-glass panels + backdrop blur            — inherited
+     · dashed empty-slot placeholders                  — inherited
+     · Cormorant Garamond serif display + numerals     — inherited
+     · 180 / 360 / 720ms ease-out motion               — inherited
+
+   What changes is the palette. The dawn sky becomes a soft, light
+   paper-grey surface; pearl/indigo foregrounds become ink; the two suit
+   colours become two greys; chromatic bloom retires. E Ink panels are
+   reflective and read best as light paper with dark ink, so Carta leans
+   light — the same way a page does.
+   ===================================================================== */
+[data-theme="carta"] {
+  /* ---- The Carta paper-and-ink ramp (the named scheme) ---- */
+  --paper:           #FFFFFF;
+  --ink:             #000000;
+  --ink-soft:        #1A1A1A;   /* body copy — 99% black, anti-bands on e-paper */
+  --ink-quiet:       #6B6B6B;   /* captions, secondary */
+  --ink-faint:       #A8A8A8;   /* dashed/empty-slot lines, disabled */
+  --paper-edge:      #E5E5E5;   /* faint inter-section hairline */
+
+  /* ---- The sky, recoloured to a soft grey "paper dawn" ----
+     Same vertical gradient structure as Dawn, top → bottom, but neutral
+     and light so dark ink stays legible on reflective e-paper. */
+  --sky-midnight:   #DCDCDA;   /* zenith — the deepest grey, still light */
+  --sky-indigo:     #E4E4E2;
+  --sky-twilight:   #EDEDEB;
+  --sky-dawn:       #F3F3F1;
+  --sky-mist:       #F8F8F6;
+  --sky-cream:      #FCFCFB;   /* warm-free horizon */
+  --sky-snow:       #FFFFFF;   /* paper at the base */
+
+  /* Carta's tonal range is far narrower than Dawn's (only ~35 levels of
+     grey), so Dawn's stop percentages make the gradient resolve to white
+     by ~65% and leave the lower third a flat slab — which Dawn hid behind
+     the mountains. With no mountains on e-paper, redistribute the stops
+     evenly so the wash spans the full screen height, reaching pure white
+     only at the very bottom. */
+  --gradient-sky: linear-gradient(
+    180deg,
+    #D6D6D4 0%,
+    #E1E1DF 28%,
+    #ECECEA 54%,
+    #F4F4F2 78%,
+    #FBFBF9 92%,
+    #FFFFFF 100%
+  );
+
+  /* Shorter night-sky gradient (menus, modals) → light paper-grey.
+     Kept close to the title sky so overlays read airy, not heavy. */
+  --gradient-sky-night: linear-gradient(
+    180deg,
+    #EAEAE8 0%,
+    #F2F2F0 55%,
+    #FAFAF8 100%
+  );
+
+  /* ---- Bloom retires; the horizon shimmer is colourless ----
+     A whisper of neutral luminance keeps the sky from going dead-flat,
+     but there is no chroma. */
+  --bloom-rose:     #C9C9C7;
+  --bloom-violet:   #BFBFBD;
+  --bloom-mint:     #C4C4C2;
+  --bloom-amber:    #D2D2D0;
+  --bloom-blue:     #C7C7C5;
+  --overlay-dawn-bloom:
+    radial-gradient(ellipse 80% 40% at 50% 96%, rgba(255,255,255,0.55) 0%, transparent 70%),
+    radial-gradient(ellipse 70% 34% at 28% 86%, rgba(255,255,255,0.35) 0%, transparent 70%);
+
+  /* ---- Accents collapse to a graded grey set ---- */
+  --accent-violet:    #6F6F71;
+  --accent-periwinkle:#7E7E80;
+  --accent-mint:      #8C8C8E;
+  --accent-rose:      #6A6A6C;
+  --accent-amber:     #7A7A7C;
+
+  /* Primary-action shimmer → a light brushed-grey sheen (still has a
+     gradient so the CTA keeps its subtle dimensional life). */
+  --shimmer-bloom: linear-gradient(105deg,
+    #ECECEA 0%, #F4F4F2 32%, #FBFBF9 58%, #F1F1EF 88%, #E8E8E6 100%);
+  --shimmer-bloom-hover: linear-gradient(105deg,
+    #F2F2F0 0%, #F8F8F6 32%, #FFFFFF 58%, #F5F5F3 88%, #EEEEEC 100%);
+  /* sheen stays white — works on light just as well */
+
+  /* Special-occasion "gold" → a neutral mid-grey */
+  --gold-warm:      #8A8A8A;
+  --gold-glow:      #B2B2B2;
+  --gold-deep:      #6A6A6A;
+
+  /* ---- Suits → two greys (e-paper renders greyscale happily) ----
+     Clubs/spades stay near-black; hearts/diamonds lift to a clear
+     medium grey so the red/black distinction survives without colour. */
+  --ember:          #6E6E70;   /* hearts / diamonds */
+  --ember-deep:     #565658;
+  --slate-suit:     #1C1C1E;   /* clubs / spades */
+  --slate-suit-2:   #0C0C0E;
+
+  /* ---- Foreground → ink on light paper ---- */
+  --fg-pearl:       #181818;   /* was light-on-dark; now ink-on-paper */
+  --fg-pearl-soft:  rgba(24, 24, 24, 0.66);
+  --fg-pearl-quiet: rgba(24, 24, 24, 0.46);
+  --fg-indigo:      #141414;
+  --fg-indigo-soft: rgba(20, 20, 20, 0.66);
+  --fg-indigo-quiet:rgba(20, 20, 20, 0.46);
+
+  /* ---- Surfaces — white cards, neutral edges, frosted-light glass ---- */
+  --card-face:      #FFFFFF;   /* clean paper face (Dawn's warmth removed) */
+  --card-face-edge: #E2E2E0;
+  --card-back:      #4A4A4C;   /* mid-grey card back */
+  --glass-dark:     rgba(255, 255, 255, 0.62);  /* glass over light → light frost */
+  --glass-light:    rgba(255, 255, 255, 0.50);
+  --glass-blur:     blur(18px) saturate(102%);  /* keep the blur; drop the chroma */
+  --scrim:          rgba(48, 48, 52, 0.26);     /* a soft neutral dim, not a dark wash */
+
+  --border-hairline-light: rgba(20, 20, 20, 0.10);
+  --border-hairline-dark:  rgba(20, 20, 20, 0.08);
+  --border-card:           rgba(20, 20, 20, 0.12);
+
+  /* ---- Shadows — KEPT, just recoloured from indigo to neutral grey.
+     Soft elevation is part of the Dawn language we're preserving. ---- */
+  --shadow-card:
+    0 1px 0 rgba(20, 20, 22, 0.06),
+    0 2px 6px rgba(20, 20, 22, 0.10),
+    0 8px 20px rgba(20, 20, 22, 0.08);
+  --shadow-card-lifted:
+    0 2px 0 rgba(20, 20, 22, 0.10),
+    0 10px 24px rgba(20, 20, 22, 0.18),
+    0 22px 48px rgba(20, 20, 22, 0.14);
+  --shadow-glow-pearl:
+    0 0 0 1px rgba(60, 60, 64, 0.30),
+    0 0 22px rgba(80, 80, 84, 0.28);
+  --shadow-glass:
+    0 1px 0 rgba(255, 255, 255, 0.55) inset,
+    0 12px 32px rgba(20, 20, 22, 0.16);
+  --shadow-modal:
+    0 32px 64px rgba(20, 20, 22, 0.28);
+
+  /* Radii, motion, typography, tracking — ALL inherited from Dawn.
+     (No overrides here on purpose: rounded corners, the Cormorant serif,
+     and the 180/360/720ms easing are exactly what we want to keep.) */
+}
+
+/* Mountains are a Dawn-only flourish — hide them entirely on e-paper.
+   The <img> carries an inline display:block, so !important is required
+   to win over it. */
+[data-theme="carta"] .librata-bg-mountains {
+  display: none !important;
+}
+
+/* E Ink can't render translucency cleanly, so sheets/menus must be opaque.
+   Carta swaps the frosted-glass fill for solid paper and drops the blur. */
+[data-theme="carta"] .menu-sheet,
+[data-theme="carta"] .menu-scrim > div {
+  background: var(--paper) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+/* The dim scrim behind the sheet also drops its blur — a flat neutral wash. */
+[data-theme="carta"] .menu-scrim {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* The title-screen sun glow is a warm gold cue — drop the chroma AND the
+   pulse animation (e-paper shouldn't animate, and the bloom is near-
+   invisible on light paper anyway). */
+[data-theme="carta"] .librata-bg-sun {
+  filter: grayscale(1);
+  opacity: 0.2;
+  animation: none !important;
+}
+
+/* Secondary-button press borrows a dark indigo in Dawn; neutralise for Carta. */
+[data-theme="carta"] .btn-secondary:active { background: rgba(20, 20, 22, 0.10); }
+
+/* The primary button borrows --sky-midnight for its label colour (dark at
+   Dawn's zenith). In Carta the zenith is light, so point the label at ink
+   and neutralise the warm cream fill to a clean paper white. */
+[data-theme="carta"] .btn-primary {
+  color: var(--ink-soft);
+  background: rgba(252, 252, 250, 0.94);
+}
+[data-theme="carta"] .btn-primary:hover  { background: #FFFFFF; }
+[data-theme="carta"] .btn-primary:active { background: rgba(244, 244, 242, 0.96); }

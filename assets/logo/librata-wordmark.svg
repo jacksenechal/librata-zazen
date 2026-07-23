@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 80" width="480" height="80" role="img" aria-label="Librata">
+  <text x="240" y="58" text-anchor="middle" font-family="Cormorant Garamond, Garamond, serif" font-weight="300" font-size="44" letter-spacing="14.08" fill="currentColor">LIBRATA</text>
+  <circle cx="88" cy="48" r="1.8" fill="currentColor"></circle>
+  <circle cx="392" cy="48" r="1.8" fill="currentColor"></circle>
+</svg>
