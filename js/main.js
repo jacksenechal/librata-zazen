@@ -238,23 +238,22 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-let audioUnlocked = false;
-async function unlockOnce() {
-  if (audioUnlocked) return;
-  audioUnlocked = true;
-  try {
-    await audio.unlockAudio();
-    audio.setVolume(store.getSettings().volume);
-  } catch (err) {
-    audioUnlocked = false;
-  }
+// Runs on every pointerdown/keydown, capture phase, for the app's whole
+// lifetime (not once): unlockAudio() creates the AudioContext and calls
+// resume() synchronously on the first gesture, then is a cheap no-op once
+// running. Keeping it live (rather than a one-shot listener) lets it also
+// re-resume a context mobile browsers suspend again later (e.g. after the
+// tab is backgrounded) — the very next tap recovers sound without a reload.
+function ensureAudioRunning() {
+  audio.unlockAudio();
+  audio.setVolume(store.getSettings().volume);
 }
-window.addEventListener('pointerdown', unlockOnce, { once: true, capture: true });
-window.addEventListener('keydown', unlockOnce, { once: true, capture: true });
+window.addEventListener('pointerdown', ensureAudioRunning, { capture: true });
+window.addEventListener('keydown', ensureAudioRunning, { capture: true });
 
 store.subscribe(() => {
   applyTheme();
-  if (audioUnlocked) audio.setVolume(store.getSettings().volume);
+  audio.setVolume(store.getSettings().volume);
   engine.setKeepAwake(store.getSettings().keepAwake);
   rerenderCurrent();
 });

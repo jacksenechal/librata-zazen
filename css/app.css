@@ -120,8 +120,65 @@ html, body {
   );
 }
 
+/* tokens.css's slider track and toggle border both fall back to
+   --border-hairline-dark (a dark navy line meant for Carta's light paper).
+   On Dawn's dark sky that reads as invisible. --ink-faint (the token the
+   slider prefers) is Carta-only, so it never masks this — give both a
+   properly light-on-dark line here instead. */
+[data-theme="dawn"] .range-slider::-webkit-slider-runnable-track,
+[data-theme="dawn"] .range-slider::-moz-range-track {
+  background: var(--border-hairline-light);
+}
+[data-theme="dawn"] .toggle {
+  border-color: rgba(242, 239, 230, 0.28);
+  background: var(--border-hairline-light);
+}
+
+/* CTA glass, Dawn only: tokens.css's .btn-primary fill is 92% opaque —
+   floats above the sky rather than reading as glass over it. Loosen the
+   fill so the night sky shows through while keeping the dark label legible
+   (contrast against the composite still clears 4.5:1 comfortably, since
+   the label stays near-black and the glass never gets lighter than the
+   pearl fill mixed with a very dark sky). */
+[data-theme="dawn"] .btn-primary {
+  background: rgba(250, 247, 238, 0.62);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border-color: rgba(255, 255, 255, 0.32);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.45),
+    0 8px 24px rgba(10,23,51,0.28),
+    0 2px 6px rgba(10,23,51,0.18);
+}
+[data-theme="dawn"] .btn-primary:hover  { background: rgba(250, 247, 238, 0.74); }
+[data-theme="dawn"] .btn-primary:active { background: rgba(244, 240, 228, 0.68); }
+
+/* The toggle's off-state border/fill is too subtle to read at a glance on
+   Carta's light paper (same --border-hairline-dark token, but even Carta's
+   own value is too faint here) — nudge it darker. The slider is left
+   untouched: --ink-faint already gives it a visible, correctly-toned track. */
+[data-theme="carta"] .toggle {
+  border-color: rgba(20, 20, 20, 0.24);
+  background: rgba(20, 20, 20, 0.05);
+}
+
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
+
+/* Mobile Chrome paints a grey selection/tap flash on active elements (most
+   visibly on sliders and the toggle) and lets a fast double-tap select
+   their label text — neither reads as "app" rather than "web page". Scope
+   this to controls (buttons, sliders, toggle, tappable rows), never to text
+   inputs, which need normal selection. */
+.icon-btn, .btn-primary, .btn-secondary, .btn-ghost,
+.range-slider, .toggle,
+.home-session-btn, .home-link, .session-row, .track-row, .sound-row,
+.theme-row, .stepper-btn, .bell-circle, .section-row-main,
+.section-row-reorder button, .transport-playpause {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 /* -------------------------------------------------------------------
@@ -154,7 +211,10 @@ html, body {
   border-radius: var(--radius-pill);
   background: transparent;
   border: 1px solid transparent;
-  color: var(--fg-pearl-soft);
+  /* One small step darker than the plain --fg-pearl-soft caption tone
+     (gear icon, back/down carets): a touch more present without being a
+     loud full-strength --fg-pearl. */
+  color: color-mix(in srgb, var(--fg-pearl-soft), var(--fg-pearl) 25%);
   cursor: pointer;
   padding: 0;
   transition: opacity var(--dur-quick) var(--ease-poise),

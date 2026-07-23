@@ -127,7 +127,11 @@ export function createEngine({ now = () => Date.now(), audio, onPersist } = {}) 
     playing = false;
     completed = true;
     stopTickTimer();
-    audio?.stopAll();
+    // Deliberately no audio?.stopAll() here: ringCrossedBoundaries() just
+    // scheduled the closing bells (or play() below is completing a session
+    // that never rang anything), and stopAll() would cancel them before
+    // they sound. stopAll() belongs to explicit pause/seek/stop, which call
+    // it themselves — natural completion must let the last bells decay.
     releaseWakeLock();
     updateSectionIndex(pos);
     persist(true);

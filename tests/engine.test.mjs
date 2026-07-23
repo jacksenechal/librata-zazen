@@ -255,6 +255,48 @@ test('completion stops ticking, fires "complete" once, and persists final positi
   engine.destroy();
 });
 
+test('natural completion rings the closing bells and never stops them afterward', (t) => {
+  const advance = mockClock(t);
+  const audio = fakeAudio();
+  const engine = createEngine({ now: () => Date.now(), audio });
+  const session = shortSession(); // boundaries at 1s, 2s, 3s(total)
+
+  engine.load(session); // load() itself calls stopAll() once, clearing any prior schedule
+  const sinceLoad = audio.calls.length;
+  engine.play();
+  advance(3500); // cross every boundary, including the closing one
+
+  // The closing ring must be the last audio call since play() started — no
+  // stopAll() cancels it (this is the bug: finishSession() used to call
+  // stopAll() right after ringClosing() scheduled it, silencing the
+  // closing bells before they could sound).
+  const callsDuringPlayback = audio.calls.slice(sinceLoad);
+  assert.equal(callsDuringPlayback.at(-1).type, 'ring');
+  assert.deepEqual(callsDuringPlayback.at(-1).spec, session.closing);
+  assert.equal(callsDuringPlayback.filter((c) => c.type === 'stop').length, 0);
+  assert.equal(engine.getState().completed, true);
+
+  engine.destroy();
+});
+
+test('pause still stops scheduled bells (stopAll unaffected by the completion fix)', (t) => {
+  const advance = mockClock(t);
+  const audio = fakeAudio();
+  const engine = createEngine({ now: () => Date.now(), audio });
+  const session = longSession();
+
+  engine.load(session); // load() itself calls stopAll() once
+  const sinceLoad = audio.calls.length;
+  engine.play(); // rings section 0
+  advance(500);
+  engine.pause();
+
+  assert.deepEqual(audio.calls.slice(sinceLoad).map((c) => c.type), ['ring', 'stop']);
+  assert.equal(engine.getState().playing, false);
+
+  engine.destroy();
+});
+
 // --- resume-past-end (a saved position >= the session's, possibly since
 // shortened, total must not wedge playback) ------------------------------
 

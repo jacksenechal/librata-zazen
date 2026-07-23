@@ -39,15 +39,11 @@ const MIN_GAIN = 0.0001; // exponential ramps can't target 0
 
 let audioCtx = null;
 let masterGain = null;
-let buffers = null; // Map<soundId, AudioBuffer>, populated by unlockAudio()
-let unlockPromise = null;
+let buffers = null; // Map<soundId, AudioBuffer>, populated once renderAllBuffers() resolves
+let buffersReady = null; // Promise that resolves once `buffers` is populated
 let currentVolume = 0.8;
 let scheduled = []; // { sources: AudioBufferSourceNode[] } still pending/playing, for stopAll()
-
-/** True once unlockAudio() has completed and buffers are ready to play. */
-function isReady() {
-  return audioCtx != null && buffers != null;
-}
+let stopToken = 0; // bumped by stopAll() to cancel strikes still queued behind whenReady()
 
 /**
  * Render one sound's bell tone into an AudioBuffer via OfflineAudioContext:
@@ -109,30 +105,63 @@ async function renderBuffer(soundId) {
   return ctx.startRendering();
 }
 
+async function renderAllBuffers() {
+  const rendered = new Map();
+  for (const sound of SOUNDS) {
+    rendered.set(sound.id, await renderBuffer(sound.id));
+  }
+  buffers = rendered;
+}
+
 /**
- * Create/resume the AudioContext and render all bell buffers once. Call
- * from a user gesture (Begin button). Idempotent: repeated calls reuse the
- * same in-flight/completed unlock.
+ * Create the AudioContext and call resume() synchronously — no `await`
+ * before either call — so both happen inside the live user-gesture call
+ * stack that triggered this. Mobile autoplay policy revokes audio
+ * permission the instant control yields back to the event loop, so
+ * anything slower (like rendering the ~20s gong buffer) must happen after,
+ * not before, resume().
+ *
+ * Idempotent and cheap to call repeatedly: call it from every pointerdown/
+ * keydown (see main.js), not just the first, so the context also recovers
+ * from mobile browsers re-suspending it (e.g. after backgrounding).
  */
-export async function unlockAudio() {
-  if (unlockPromise) return unlockPromise;
-  unlockPromise = (async () => {
-    const Ctx = window.AudioContext || window.webkitAudioContext;
+export function unlockAudio() {
+  const Ctx = window.AudioContext || window.webkitAudioContext;
+  if (!Ctx) return;
+  if (!audioCtx) {
     audioCtx = new Ctx();
-    if (audioCtx.state === 'suspended') {
-      await audioCtx.resume();
-    }
     masterGain = audioCtx.createGain();
     masterGain.gain.value = currentVolume;
     masterGain.connect(audioCtx.destination);
+    buffersReady = renderAllBuffers();
+  }
+  if (audioCtx.state !== 'running') {
+    audioCtx.resume().catch(() => {
+      // Rejects if this call didn't land inside a user gesture — the next
+      // gesture's call retries.
+    });
+  }
+}
 
-    const rendered = new Map();
-    for (const sound of SOUNDS) {
-      rendered.set(sound.id, await renderBuffer(sound.id));
-    }
-    buffers = rendered;
-  })();
-  return unlockPromise;
+/** Resolves once buffers are rendered AND the context is running, or false
+ * if a stopAll() (or a fresh unlock replacing this context) supersedes the
+ * wait before then. Never rejects. */
+function whenReady() {
+  if (!audioCtx || !buffersReady) return Promise.resolve(false);
+  const ctx = audioCtx;
+  const token = stopToken;
+  const running = ctx.state === 'running'
+    ? Promise.resolve()
+    : new Promise((resolve) => {
+      const onChange = () => {
+        if (ctx.state === 'running') {
+          ctx.removeEventListener('statechange', onChange);
+          resolve();
+        }
+      };
+      ctx.addEventListener('statechange', onChange);
+    });
+  return Promise.all([buffersReady, running]).then(() => audioCtx === ctx && stopToken === token);
 }
 
 /** Set master volume 0..1; safe no-op (just remembers the value) before unlock. */
@@ -151,34 +180,44 @@ function playStrike(soundId, when) {
   return source;
 }
 
-/** Play one strike of soundId immediately. Safe no-op before unlockAudio(). */
+/**
+ * Play one strike of soundId. Safe no-op before unlockAudio(). If buffers
+ * are still rendering or the context is still suspended, the strike is
+ * queued and plays as soon as both are ready, rather than being silently
+ * dropped — unless stopAll() is called first, which cancels the wait.
+ */
 export function previewStrike(soundId) {
-  if (!isReady()) return;
-  const source = playStrike(soundId, audioCtx.currentTime);
-  if (source) scheduled.push({ sources: [source] });
+  if (!audioCtx) return;
+  whenReady().then((ready) => {
+    if (!ready) return;
+    const source = playStrike(soundId, audioCtx.currentTime);
+    if (source) scheduled.push({ sources: [source] });
+  });
 }
 
 /**
  * Schedule count strikes of soundId, gapSec apart, sample-accurately
- * starting now. Safe no-op before unlockAudio().
+ * starting now. Safe no-op before unlockAudio(). Queued (see
+ * previewStrike) rather than dropped if not yet ready.
  */
 export function ringBells({ count, gapSec, soundId }) {
-  if (!isReady()) return;
-  const startAt = audioCtx.currentTime;
-  const sources = [];
-  for (let i = 0; i < count; i++) {
-    const source = playStrike(soundId, startAt + i * gapSec);
-    if (source) sources.push(source);
-  }
-  if (sources.length) scheduled.push({ sources });
+  if (!audioCtx) return;
+  whenReady().then((ready) => {
+    if (!ready) return;
+    const startAt = audioCtx.currentTime;
+    const sources = [];
+    for (let i = 0; i < count; i++) {
+      const source = playStrike(soundId, startAt + i * gapSec);
+      if (source) sources.push(source);
+    }
+    if (sources.length) scheduled.push({ sources });
+  });
 }
 
-/** Cancel all pending/sounding scheduled strikes (on pause/seek/stop). */
+/** Cancel all pending/sounding scheduled strikes (on pause/seek/stop), and
+ * any previewStrike/ringBells calls still queued behind whenReady(). */
 export function stopAll() {
-  if (!isReady()) {
-    scheduled = [];
-    return;
-  }
+  stopToken++;
   for (const entry of scheduled) {
     for (const source of entry.sources) {
       try {
