@@ -32,6 +32,31 @@ let current = 'home';
 let currentParams = {};
 let dispose = null;
 
+// --- History integration -------------------------------------------------
+// The nav stack is mirrored 1:1 into browser history: home is the base
+// state (installed via replaceState, so it never itself consumes a back
+// press), and every forward navigate() does exactly one pushState. Back
+// (hardware/gesture, or an in-app caret calling goBack()) is therefore
+// always "pop one level" — popstate's event.state tells us directly which
+// screen+params to show, so there's no separate stack to keep in sync.
+let historySeq = 0;
+function historyState(name, params) {
+  return { screen: name, params, seq: ++historySeq };
+}
+history.replaceState({ screen: 'home', params: {}, seq: 0 }, '');
+
+// Fade-transition guard: a popstate that lands mid-transition is queued and
+// replayed once the in-flight swap finishes, rather than racing it.
+let transitioning = false;
+let pendingPopState = null;
+
+function sameParams(a, b) {
+  const ak = Object.keys(a || {});
+  const bk = Object.keys(b || {});
+  if (ak.length !== bk.length) return false;
+  return ak.every((k) => a[k] === b[k]);
+}
+
 function applyTheme() {
   document.documentElement.setAttribute('data-theme', store.getSettings().theme);
   const themeColor = getComputedStyle(document.documentElement).getPropertyValue('--sky-midnight').trim();
@@ -58,7 +83,7 @@ function showOnly(name) {
 
 function mount(name, params) {
   const container = containers[name];
-  const result = screens[name](container, { store, engine, audio, navigate, params });
+  const result = screens[name](container, { store, engine, audio, navigate, goBack, params });
   dispose = typeof result === 'function' ? result : null;
 }
 
@@ -74,7 +99,10 @@ function unmount() {
   containers[current].innerHTML = '';
 }
 
-function navigate(name, params = {}) {
+/** Performs the actual screen swap (fade + mount/unmount). Never touches
+ * history — callers decide whether this is a forward move (navigate, which
+ * pushes) or a history-driven move (applyPopState, which doesn't). */
+function navigateTo(name, params = {}) {
   if (!screens[name]) return;
   if (name === current) {
     // same screen: just refresh params/content, no fade
@@ -106,8 +134,15 @@ function navigate(name, params = {}) {
       incoming.style.transition = 'none';
       incoming.style.opacity = '1';
     }
+    transitioning = false;
+    if (pendingPopState) {
+      const next = pendingPopState;
+      pendingPopState = null;
+      applyPopState(next);
+    }
   };
 
+  transitioning = true;
   if (dur) {
     outgoing.style.transition = `opacity ${dur}ms var(--ease-poise)`;
     outgoing.style.opacity = '0';
@@ -116,6 +151,55 @@ function navigate(name, params = {}) {
     swapIn();
   }
 }
+
+/** Public forward navigation: used by screens to move deeper (settings,
+ * library, editor, sectionEditor, player). Pushes one history entry per
+ * call, mirroring the nav stack into browser history 1:1. Navigating to the
+ * screen already showing (e.g. a store-driven refresh) is a no-op on
+ * history — it's a refresh, not a real move. */
+function navigate(name, params = {}) {
+  if (!screens[name]) return;
+  if (name !== current) {
+    history.pushState(historyState(name, params), '');
+  }
+  navigateTo(name, params);
+}
+
+/** Used by in-app back carets / down-carets so the history stack and the
+ * on-screen stack never diverge: a back caret consumes the same history
+ * entry a hardware/gesture back press would. Falls back to a direct
+ * navigate when there's nothing pushed to pop (e.g. a cold load straight
+ * into a non-home screen — not reachable today, but guarded regardless). */
+function goBack() {
+  if (history.state && history.state.seq > 0) {
+    history.back();
+  } else {
+    history.replaceState({ screen: 'home', params: {}, seq: 0 }, '');
+    navigateTo('home', {});
+  }
+}
+
+/** Applies a popstate-resolved state to the screen stack. Shared by the
+ * popstate listener and by the queued-during-transition replay. */
+function applyPopState(state) {
+  if (state.screen === current && sameParams(state.params, currentParams)) {
+    // Already showing this screen+params: either a duplicate/double-fired
+    // popstate, or the pop landed on the entry underneath a modal that just
+    // dismissed itself (confirmModal owns its own popstate listener and
+    // closes on this same event) — nothing for the screen stack to do.
+    return;
+  }
+  navigateTo(state.screen, state.params || {});
+}
+
+window.addEventListener('popstate', (event) => {
+  const state = event.state || { screen: 'home', params: {}, seq: 0 };
+  if (transitioning) {
+    pendingPopState = state;
+    return;
+  }
+  applyPopState(state);
+});
 
 function isTypingInCurrentScreen() {
   const active = document.activeElement;

@@ -2,7 +2,7 @@ import { icon } from '../icons.js';
 import { escapeHtml, formatClock, statLine, confirmModal } from './util.js';
 
 export function render(root, ctx) {
-  const { store, audio, navigate, params } = ctx;
+  const { store, audio, navigate, goBack, params } = ctx;
   const sessionId = params?.sessionId;
   const session = store.getSession(sessionId) || store.getCurrentSession();
   if (!session) {
@@ -60,7 +60,7 @@ export function render(root, ctx) {
     </div>
   `;
 
-  root.querySelector('[data-action="close"]').addEventListener('click', () => navigate('home'));
+  root.querySelector('[data-action="close"]').addEventListener('click', () => goBack());
 
   const nameInput = root.querySelector('[data-field="name"]');
   nameInput.addEventListener('input', () => {
@@ -97,7 +97,7 @@ export function render(root, ctx) {
     const confirmed = await confirmModal({ message: 'Delete this session?' });
     if (confirmed) {
       store.deleteSession(session.id);
-      navigate('home');
+      goBack();
     }
   });
 }

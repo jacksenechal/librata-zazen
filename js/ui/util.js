@@ -45,10 +45,29 @@ export function confirmModal({ message, confirmLabel = 'Delete', cancelLabel = '
     `;
     document.body.appendChild(scrim);
 
+    // Push a history entry so the hardware/gesture back button closes the
+    // modal (as "Keep") instead of leaving the screen underneath it. We
+    // reuse the current history state verbatim — the entry exists only to
+    // give back something to consume, not to represent a different screen.
+    history.pushState(history.state, '');
+    let poppedViaHistory = false;
+    const onPopState = () => {
+      poppedViaHistory = true;
+      cleanup(false);
+    };
+    window.addEventListener('popstate', onPopState);
+
     const cleanup = (result) => {
       scrim.removeEventListener('click', onScrimClick);
       document.removeEventListener('keydown', onKeydown);
+      window.removeEventListener('popstate', onPopState);
       scrim.remove();
+      if (!poppedViaHistory) {
+        // Closed via an in-app action (Keep/Delete/Escape/scrim click), not
+        // via back — consume the history entry pushed on open so it never
+        // lingers as a dead forward-navigable step.
+        history.back();
+      }
       if (previouslyFocused && typeof previouslyFocused.focus === 'function') {
         previouslyFocused.focus();
       }

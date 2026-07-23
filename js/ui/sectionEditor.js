@@ -7,7 +7,7 @@ const MIN_GAP = 1;
 const MAX_GAP = 10;
 
 export function render(root, ctx) {
-  const { store, audio, navigate, params } = ctx;
+  const { store, audio, navigate, goBack, params } = ctx;
   const sessionId = params?.sessionId;
   const isClosing = !!params?.closing;
   const session = store.getSession(sessionId);
@@ -80,9 +80,7 @@ export function render(root, ctx) {
     }
   };
 
-  root.querySelector('[data-action="back"]').addEventListener('click', () => {
-    navigate('editor', { sessionId: session.id });
-  });
+  root.querySelector('[data-action="back"]').addEventListener('click', () => goBack());
 
   if (!isClosing) {
     const nameInput = root.querySelector('[data-field="name"]');
@@ -104,7 +102,7 @@ export function render(root, ctx) {
     if (removeBtn) {
       removeBtn.addEventListener('click', () => {
         store.removeSection(session.id, section.id);
-        navigate('editor', { sessionId: session.id });
+        goBack();
       });
     }
   }

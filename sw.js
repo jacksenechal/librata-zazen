@@ -5,7 +5,7 @@
  * for the file map this precache list is derived from.
  */
 
-const CACHE_NAME = "zazen-v3";
+const CACHE_NAME = "zazen-v4";
 
 const PRECACHE_URLS = [
   "./",

@@ -2,7 +2,7 @@ import { icon } from '../icons.js';
 import { escapeHtml, formatClock } from './util.js';
 
 export function render(root, ctx) {
-  const { store, navigate } = ctx;
+  const { store, navigate, goBack } = ctx;
   const sessions = store.getSessions();
   const currentId = store.getCurrentSession()?.id;
 
@@ -35,7 +35,7 @@ export function render(root, ctx) {
     </div>
   `;
 
-  root.querySelector('[data-action="back"]').addEventListener('click', () => navigate('home'));
+  root.querySelector('[data-action="back"]').addEventListener('click', () => goBack());
   root.querySelector('[data-action="new"]').addEventListener('click', () => {
     const session = store.createSession();
     navigate('editor', { sessionId: session.id });
@@ -43,7 +43,7 @@ export function render(root, ctx) {
   root.querySelectorAll('.session-row').forEach((rowEl) => {
     rowEl.addEventListener('click', () => {
       store.setCurrentSession(rowEl.dataset.id);
-      navigate('home');
+      goBack();
     });
   });
 }

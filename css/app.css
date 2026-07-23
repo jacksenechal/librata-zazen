@@ -46,6 +46,13 @@ html, body {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
+  /* Explicit, not just tidy: per the CSS overflow spec, an axis left at the
+     'visible' default silently computes to 'auto' whenever the other axis
+     is scrollable — so any invisible edge-to-edge element (e.g. a touch
+     target's ::before hit-area extension, sized past its visual box on
+     purpose) turns into a real, tappable-but-invisible 1px horizontal
+     scroll the moment it bleeds past this region's edge. Pin it shut. */
+  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -412,6 +419,7 @@ html, body {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden; /* see .screen-scroll's overflow-x note */
   -webkit-overflow-scrolling: touch;
 }
 

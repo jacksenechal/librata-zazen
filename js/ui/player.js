@@ -2,7 +2,7 @@ import { icon } from '../icons.js';
 import { escapeHtml, formatClock, statLine, romanNumeral } from './util.js';
 
 export function render(root, ctx) {
-  const { store, engine, navigate } = ctx;
+  const { store, engine, navigate, goBack } = ctx;
   const unsubscribers = [];
   let dragging = false;
   let lastPlaying = null;
@@ -41,8 +41,8 @@ export function render(root, ctx) {
         </main>
       </div>
     `;
-    root.querySelector('[data-action="close"]').addEventListener('click', () => navigate('home'));
-    root.querySelector('[data-action="done"]').addEventListener('click', () => navigate('home'));
+    root.querySelector('[data-action="close"]').addEventListener('click', () => goBack());
+    root.querySelector('[data-action="done"]').addEventListener('click', () => goBack());
   }
 
   // Live-mode node refs, populated by paintLive(); mutated by updateTick().
@@ -118,7 +118,7 @@ export function render(root, ctx) {
     lastPlaying = null;
     lastSectionIndex = null;
 
-    root.querySelector('[data-action="close"]').addEventListener('click', () => navigate('home'));
+    root.querySelector('[data-action="close"]').addEventListener('click', () => goBack());
     root.querySelector('[data-action="toggle"]').addEventListener('click', () => engine.toggle());
     nodes.trackRows.forEach((rowEl) => {
       rowEl.addEventListener('click', () => engine.seekToSection(Number(rowEl.dataset.index)));
@@ -192,13 +192,22 @@ export function render(root, ctx) {
       rowEl.classList.toggle('is-done', status === 'is-done');
       rowEl.classList.toggle('is-current', status === 'is-current');
       rowEl.classList.toggle('is-upcoming', status === 'is-upcoming');
-      if (i === state.sectionIndex) {
+      // Every row's fill derives from the current position on every update
+      // (not just the current row's): a row that was "current" a moment
+      // ago and is now behind or ahead of the playhead (e.g. after a seek)
+      // must not keep the fractional width it last had.
+      let rowPct;
+      if (status === 'is-done') {
+        rowPct = 100;
+      } else if (status === 'is-current') {
         const secDuration = session.sections[i].durationSec;
         const into = state.positionSec - sectionStarts[i];
-        const rowPct = secDuration > 0 ? Math.min(100, Math.max(0, (into / secDuration) * 100)) : 0;
-        const fillEl = rowEl.querySelector('.track-row-progress-fill');
-        if (fillEl) fillEl.style.width = `${rowPct}%`;
+        rowPct = secDuration > 0 ? Math.min(100, Math.max(0, (into / secDuration) * 100)) : 0;
+      } else {
+        rowPct = 0;
       }
+      const fillEl = rowEl.querySelector('.track-row-progress-fill');
+      if (fillEl) fillEl.style.width = `${rowPct}%`;
     });
 
     if (state.sectionIndex !== lastSectionIndex) {

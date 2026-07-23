@@ -1,7 +1,7 @@
 import { icon } from '../icons.js';
 
 export function render(root, ctx) {
-  const { store, audio, navigate } = ctx;
+  const { store, audio, goBack } = ctx;
   const settings = store.getSettings();
 
   root.innerHTML = `
@@ -51,7 +51,7 @@ Connectivity   100% offline</pre>
     </div>
   `;
 
-  root.querySelector('[data-action="back"]').addEventListener('click', () => navigate('home'));
+  root.querySelector('[data-action="back"]').addEventListener('click', () => goBack());
 
   const slider = root.querySelector('.range-slider');
   // 'input' fires continuously while dragging: only push the live value to
