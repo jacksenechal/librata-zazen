@@ -307,6 +307,10 @@ html, body {
   justify-content: center;
   gap: var(--space-4);
   text-align: center;
+  /* Claim horizontal gestures for the session swipe (Chrome otherwise
+     converts them to scrolls and fires pointercancel); vertical scroll
+     stays with the browser. */
+  touch-action: pan-y;
 }
 
 .home-session-btn {

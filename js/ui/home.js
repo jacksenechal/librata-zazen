@@ -153,6 +153,9 @@ function wireSwipe(el, sessions, currentId, store) {
     tracking = true;
     startX = e.clientX;
     startY = e.clientY;
+    // Keep receiving pointer events even if the browser would otherwise
+    // retarget them mid-gesture (Chrome, installed PWAs).
+    try { el.setPointerCapture(e.pointerId); } catch { /* unsupported */ }
   };
   const onUp = (e) => {
     if (!tracking) return;
