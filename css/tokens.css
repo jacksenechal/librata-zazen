@@ -3,7 +3,7 @@
    Source: Librata Design System (colors_and_type.css), verbatim except:
    - Google Fonts @import replaced by self-hosted fonts (offline-first).
 
-   Two themes share one token set:
+   Three themes share one token set:
 
      • Default / Theme A — DAWN  (canonical phone mode)
          Midnight → Indigo → Dawn sky gradient · Cormorant Garamond Light
@@ -13,10 +13,21 @@
          Opt in by setting  data-theme="carta"  on <html> or any wrapper.
          Carta is Dawn rendered in grayscale — SAME structure, radii,
          soft shadows, frosted glass, dashed slot placeholders, Cormorant
-         serif and gentle motion. ONLY the palette changes: the dawn sky
+         serif and gentle motion. ONLY the palette changes — the dawn sky
          becomes a soft paper-and-ink grayscale surface, suits read as
          two greys, and chromatic bloom retires. Built for the reflective
          greyscale panels of Onyx Boox, Supernote, Boox Palma and kin.
+
+     • Theme C — NIGHT  (deep night sky / quiet dark mode)
+         Opt in by setting  data-theme="night"  on <html> or any wrapper.
+         Night takes Dawn's own midnight-to-sunrise ramp and holds it at
+         its darkest end — the gradient never completes its journey to
+         daylight, and a handful of quiet, static stars ride along in
+         the upper sky. SAME structure, radii, shadows, glass, type and
+         motion as Dawn — colour only, same philosophy as Carta. Pearl
+         foregrounds need no adjustment: they were designed to read
+         against Dawn's own darkest zenith, and that's exactly what
+         Night holds them against.
    ===================================================================== */
 
 @import url("../assets/fonts/fonts.css");
@@ -148,6 +159,21 @@
   --border-hairline-light: rgba(242, 239, 230, 0.12);
   --border-hairline-dark:  rgba(15, 31, 64, 0.08);
   --border-card:           rgba(15, 31, 64, 0.10);
+
+  /* ---- Control surface — quiet interactive controls (bell circles, radio
+     marks, steppers, sliders, toggles) that must read on EVERY ground a
+     theme paints, not just one. --border-hairline-* is directional (light
+     line for dark grounds, dark line for light grounds) and silently
+     vanishes when a component uses the wrong one on the wrong ground —
+     exactly the bug this set exists to prevent. Always pair with the
+     matching --control-fill for a control's resting/filled state; never
+     reach for --border-hairline-* or --ink-faint on a control. Dawn's sky
+     runs dark-to-light, so these are tuned to the mid-sky, the same
+     compromise the sky-spanning controls already make. ---- */
+  --control-edge:        rgba(242, 239, 230, 0.35);   /* resting border/outline */
+  --control-edge-strong: rgba(242, 239, 230, 0.55);   /* hover / selected border */
+  --control-fill:        rgba(242, 239, 230, 0.10);   /* resting track/well fill */
+  --control-fill-active: rgba(242, 239, 230, 0.85);   /* filled / on / selected fill */
 
   /* -------------------------------------------------------------------
      TYPOGRAPHY — families
@@ -468,7 +494,7 @@ code, .mono {
      · frosted-glass panels + backdrop blur            — inherited
      · dashed empty-slot placeholders                  — inherited
      · Cormorant Garamond serif display + numerals     — inherited
-     · 180 / 360 / 720ms ease-out motion               — inherited
+     · 180 / 360 / 720ms ease-out motion                — inherited
 
    What changes is the palette. The dawn sky becomes a soft, light
    paper-grey surface; pearl/indigo foregrounds become ink; the two suit
@@ -582,6 +608,13 @@ code, .mono {
   --border-hairline-dark:  rgba(20, 20, 20, 0.08);
   --border-card:           rgba(20, 20, 20, 0.12);
 
+  /* ---- Control surface — same roles as Dawn's, re-inked for paper.
+     See the Dawn block above for why these exist. ---- */
+  --control-edge:        rgba(20, 20, 20, 0.28);
+  --control-edge-strong: rgba(20, 20, 20, 0.42);
+  --control-fill:        rgba(20, 20, 20, 0.06);
+  --control-fill-active: rgba(20, 20, 20, 0.85);
+
   /* ---- Shadows — KEPT, just recoloured from indigo to neutral grey.
      Soft elevation is part of the Dawn language we're preserving. ---- */
   --shadow-card:
@@ -648,3 +681,81 @@ code, .mono {
 }
 [data-theme="carta"] .btn-primary:hover  { background: #FFFFFF; }
 [data-theme="carta"] .btn-primary:active { background: rgba(244, 244, 242, 0.96); }
+
+/* =====================================================================
+   THEME C — NIGHT  (deep night sky / quiet dark mode)
+
+   Opt in by setting  data-theme="night"  on <html>, <body>, or any
+   wrapper element.
+
+   Design intent — like Carta, Night is NOT a separate design language.
+   It is Dawn with one variable swapped: colour. Every structural
+   decision Dawn makes survives untouched —
+
+     · radii, soft elevation, frosted glass, dashed placeholders — inherited
+     · Cormorant Garamond serif display + numerals                — inherited
+     · 180 / 360 / 720ms ease-out motion                          — inherited
+     · glass and shadow recipes                                   — inherited
+
+   What changes is the sky. Dawn's midnight-to-sunrise ramp never
+   completes its journey to daylight — it is held at its darkest end,
+   and a handful of quiet, static stars ride along in the upper sky.
+   No twinkle, no parallax — this is a quiet brand, not a screensaver.
+   Pearl foregrounds need no adjustment: they were designed to read
+   against Dawn's own darkest zenith, and that is exactly what Night
+   holds them against, everywhere, not just at the top of the screen.
+   ===================================================================== */
+[data-theme="night"] {
+  /* ---- The night sky ramp — deep navy to near-black, never lightens ---- */
+  --sky-midnight: #030711;
+  --sky-indigo:   #071224;
+  --sky-twilight: #0D1B33;
+  --sky-dawn:     #14264A;
+  --sky-mist:     #182D52;
+  --sky-cream:    #1B3160;
+  --sky-snow:     #1E356B;
+
+  /* A dozen static, asymmetrically-placed stars in the upper ~36% of the
+     viewport, stacked as radial-gradient layers under the linear ramp. */
+  --gradient-sky:
+    radial-gradient(circle 1px at 8% 12%,   rgba(242,239,230,0.55), transparent),
+    radial-gradient(circle 1.5px at 22% 6%, rgba(242,239,230,0.70), transparent),
+    radial-gradient(circle 1px at 35% 18%,  rgba(242,239,230,0.40), transparent),
+    radial-gradient(circle 1px at 48% 9%,   rgba(242,239,230,0.50), transparent),
+    radial-gradient(circle 2px at 58% 4%,   rgba(242,239,230,0.75), transparent),
+    radial-gradient(circle 1px at 68% 22%,  rgba(242,239,230,0.35), transparent),
+    radial-gradient(circle 1.5px at 78% 14%, rgba(242,239,230,0.60), transparent),
+    radial-gradient(circle 1px at 88% 30%,  rgba(242,239,230,0.45), transparent),
+    radial-gradient(circle 2.5px at 15% 34%, rgba(242,239,230,0.65), transparent),
+    radial-gradient(circle 1px at 92% 8%,   rgba(242,239,230,0.50), transparent),
+    radial-gradient(circle 1px at 42% 36%,  rgba(242,239,230,0.30), transparent),
+    radial-gradient(circle 1.5px at 5% 24%, rgba(242,239,230,0.55), transparent),
+    linear-gradient(
+      180deg,
+      var(--sky-midnight) 0%,
+      var(--sky-indigo)   20%,
+      var(--sky-twilight) 42%,
+      var(--sky-dawn)      62%,
+      var(--sky-mist)      78%,
+      var(--sky-cream)     90%,
+      var(--sky-snow)      100%
+    );
+
+  --gradient-sky-night: linear-gradient(
+    180deg,
+    var(--sky-midnight) 0%,
+    var(--sky-twilight) 60%,
+    var(--sky-dawn) 100%
+  );
+
+  /* ---- Bloom retires to a whisper of cool luminance ----
+     No chromatic shimmer — Night is quiet, not aurora-lit. A faint,
+     colourless glow near the top keeps the sky from reading as a flat
+     void, without ever competing with the stars. */
+  --overlay-dawn-bloom:
+    radial-gradient(ellipse 70% 35% at 50% 4%, rgba(242,239,230,0.06) 0%, transparent 70%);
+
+  /* Foregrounds, glass, shadows, accents, suits, radii, type, and motion
+     are ALL inherited from :root on purpose — see the design intent
+     note above. Nothing else needs to change for Night to feel whole. */
+}

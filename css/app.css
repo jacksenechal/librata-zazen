@@ -120,20 +120,6 @@ html, body {
   );
 }
 
-/* tokens.css's slider track and toggle border both fall back to
-   --border-hairline-dark (a dark navy line meant for Carta's light paper).
-   On Dawn's dark sky that reads as invisible. --ink-faint (the token the
-   slider prefers) is Carta-only, so it never masks this — give both a
-   properly light-on-dark line here instead. */
-[data-theme="dawn"] .range-slider::-webkit-slider-runnable-track,
-[data-theme="dawn"] .range-slider::-moz-range-track {
-  background: var(--border-hairline-light);
-}
-[data-theme="dawn"] .toggle {
-  border-color: rgba(242, 239, 230, 0.28);
-  background: var(--border-hairline-light);
-}
-
 /* CTA glass, Dawn only: tokens.css's .btn-primary fill is 92% opaque —
    floats above the sky rather than reading as glass over it. Loosen the
    fill so the night sky shows through while keeping the dark label legible
@@ -152,15 +138,6 @@ html, body {
 }
 [data-theme="dawn"] .btn-primary:hover  { background: rgba(250, 247, 238, 0.74); }
 [data-theme="dawn"] .btn-primary:active { background: rgba(244, 240, 228, 0.68); }
-
-/* The toggle's off-state border/fill is too subtle to read at a glance on
-   Carta's light paper (same --border-hairline-dark token, but even Carta's
-   own value is too faint here) — nudge it darker. The slider is left
-   untouched: --ink-faint already gives it a visible, correctly-toned track. */
-[data-theme="carta"] .toggle {
-  border-color: rgba(20, 20, 20, 0.24);
-  background: rgba(20, 20, 20, 0.05);
-}
 
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
@@ -508,7 +485,7 @@ html, body {
 .player-progress-track {
   position: relative;
   height: 2px;
-  background: var(--ink-faint, var(--border-hairline-dark));
+  background: var(--control-fill);
   border-radius: var(--radius-sm);
 }
 .player-progress-fill {
@@ -552,7 +529,7 @@ html, body {
   width: 72px;
   height: 72px;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--border-hairline-dark);
+  border: 1px solid var(--control-edge);
   background: transparent;
   color: var(--fg-pearl);
   cursor: pointer;
@@ -610,7 +587,7 @@ html, body {
   position: absolute;
   left: 0; right: 0; bottom: 0;
   height: 2px;
-  background: var(--ink-faint, var(--border-hairline-dark));
+  background: var(--control-fill);
 }
 .track-row-progress-fill {
   height: 100%;
@@ -697,7 +674,7 @@ html, body {
   justify-content: center;
   background: transparent;
   border: 0;
-  color: var(--fg-pearl-quiet);
+  color: var(--control-edge);
   position: relative;
   cursor: pointer;
 }
@@ -718,7 +695,7 @@ html, body {
   top: 0;
   bottom: -13px;
 }
-.section-row-reorder button:hover { color: var(--fg-pearl-soft); }
+.section-row-reorder button:hover { color: var(--control-edge-strong); }
 .section-row-reorder button:disabled { opacity: 0.3; cursor: default; }
 .section-row-main {
   flex: 1;
@@ -759,7 +736,7 @@ html, body {
   width: var(--space-9);
   height: var(--space-9);
   border-radius: var(--radius-pill);
-  border: 1px solid var(--border-hairline-dark);
+  border: 1px solid var(--control-edge);
   background: transparent;
   color: var(--fg-pearl);
   cursor: pointer;
@@ -787,12 +764,12 @@ html, body {
   width: 32px;
   height: 32px;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--border-hairline-dark);
+  border: 1px solid var(--control-edge);
   background: transparent;
   position: relative;
   cursor: pointer;
   padding: 0;
-  transition: background var(--dur-quick) var(--ease-poise), filter var(--dur-quick) var(--ease-poise);
+  transition: background var(--dur-quick) var(--ease-poise), border-color var(--dur-quick) var(--ease-poise), filter var(--dur-quick) var(--ease-poise);
 }
 /* Visual circle stays 32px (intentional); expand the actual hit area to
    the >=48px minimum touch target without widening the ring itself. */
@@ -801,7 +778,7 @@ html, body {
   position: absolute;
   inset: -8px;
 }
-.bell-circle.is-filled { background: var(--fg-pearl); }
+.bell-circle.is-filled { background: var(--control-fill-active); border-color: var(--control-edge-strong); }
 .bell-circle:active { filter: brightness(0.94); }
 
 .gap-stepper {
@@ -834,7 +811,7 @@ html, body {
   width: 16px;
   height: 16px;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--border-hairline-dark);
+  border: 1px solid var(--control-edge);
   flex-shrink: 0;
   position: relative;
 }
@@ -843,10 +820,11 @@ html, body {
   position: absolute;
   inset: 3px;
   border-radius: var(--radius-pill);
-  background: var(--fg-pearl);
+  background: var(--control-fill-active);
   opacity: 0;
   transition: opacity var(--dur-quick) var(--ease-poise);
 }
+[aria-checked="true"] .radio-dot { border-color: var(--control-edge-strong); }
 [aria-checked="true"] .radio-dot::after { opacity: 1; }
 
 /* -------------------------------------------------------------------
@@ -874,12 +852,12 @@ html, body {
 }
 .range-slider::-webkit-slider-runnable-track {
   height: 2px;
-  background: var(--ink-faint, var(--border-hairline-dark));
+  background: var(--control-fill);
   border-radius: var(--radius-sm);
 }
 .range-slider::-moz-range-track {
   height: 2px;
-  background: var(--ink-faint, var(--border-hairline-dark));
+  background: var(--control-fill);
   border-radius: var(--radius-sm);
 }
 .range-slider::-webkit-slider-thumb {
@@ -888,8 +866,8 @@ html, body {
   width: 16px;
   height: 16px;
   border-radius: var(--radius-pill);
-  background: var(--fg-pearl);
-  border: 1px solid var(--border-hairline-dark);
+  background: var(--control-fill-active);
+  border: 1px solid var(--control-edge-strong);
   margin-top: -7px;
   transition: filter var(--dur-quick) var(--ease-poise);
 }
@@ -897,8 +875,8 @@ html, body {
   width: 16px;
   height: 16px;
   border-radius: var(--radius-pill);
-  background: var(--fg-pearl);
-  border: 1px solid var(--border-hairline-dark);
+  background: var(--control-fill-active);
+  border: 1px solid var(--control-edge-strong);
   transition: filter var(--dur-quick) var(--ease-poise);
 }
 .range-slider:active::-webkit-slider-thumb { filter: brightness(0.94); }
@@ -907,8 +885,8 @@ html, body {
   width: 44px;
   height: 26px;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--border-hairline-dark);
-  background: transparent;
+  border: 1px solid var(--control-edge);
+  background: var(--control-fill);
   position: relative;
   cursor: pointer;
   padding: 0;
@@ -930,6 +908,9 @@ html, body {
   border-radius: var(--radius-pill);
   background: var(--ink-quiet, var(--fg-pearl-soft));
   transition: transform var(--dur-quick) var(--ease-poise), background var(--dur-quick) var(--ease-poise);
+}
+.toggle[aria-checked="true"] {
+  border-color: var(--control-edge-strong);
 }
 .toggle[aria-checked="true"] .toggle-knob {
   transform: translateX(18px);
