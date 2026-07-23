@@ -149,13 +149,25 @@ function wireSwipe(el, sessions, currentId, store) {
   let startY = 0;
   let tracking = false;
 
+  let captured = false;
+
   const onDown = (e) => {
     tracking = true;
+    captured = false;
     startX = e.clientX;
     startY = e.clientY;
-    // Keep receiving pointer events even if the browser would otherwise
-    // retarget them mid-gesture (Chrome, installed PWAs).
-    try { el.setPointerCapture(e.pointerId); } catch { /* unsupported */ }
+  };
+  const onMove = (e) => {
+    if (!tracking || captured) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    // Capture only once the gesture is clearly a horizontal swipe —
+    // capturing on pointerdown retargets events away from child
+    // buttons and kills their clicks.
+    if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) {
+      captured = true;
+      try { el.setPointerCapture(e.pointerId); } catch { /* unsupported */ }
+    }
   };
   const onUp = (e) => {
     if (!tracking) return;
@@ -183,6 +195,7 @@ function wireSwipe(el, sessions, currentId, store) {
   const onCancel = () => { tracking = false; };
 
   el.addEventListener('pointerdown', onDown);
+  el.addEventListener('pointermove', onMove);
   el.addEventListener('pointerup', onUp);
   el.addEventListener('pointercancel', onCancel);
 }
