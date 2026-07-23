@@ -1,5 +1,14 @@
 // Shared helpers for the ui/* screen modules. Not part of the module contract —
 // kept local to js/ui/ so it composes only with files this agent owns.
+//
+// Formatting (clock strings, roman numerals) lives in js/format.js — the
+// single formatting module per docs/ARCHITECTURE.md. Re-exported here under
+// their historical ui/util.js names so call sites across js/ui/* don't need
+// to change.
+
+import { fmtTime as formatClock, roman as romanNumeral } from '../format.js';
+
+export { formatClock, romanNumeral };
 
 /** Escapes text before it is interpolated into an innerHTML template. */
 export function escapeHtml(str) {
@@ -11,36 +20,9 @@ export function escapeHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
-/** Formats whole seconds as "M:SS" (minutes unpadded, seconds zero-padded). */
-export function formatClock(totalSeconds) {
-  const s = Math.max(0, Math.round(totalSeconds));
-  const m = Math.floor(s / 60);
-  const rem = s % 60;
-  return `${m}:${String(rem).padStart(2, '0')}`;
-}
-
 /** Joins bare stat strings with the Librata middle-dot separator. */
 export function statLine(parts) {
   return parts.filter(Boolean).join(' · ');
-}
-
-const ROMAN = [
-  [1000, 'M'], [900, 'CM'], [500, 'D'], [400, 'CD'],
-  [100, 'C'], [90, 'XC'], [50, 'L'], [40, 'XL'],
-  [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I'],
-];
-
-/** Converts a 1-based index to a roman numeral for tracklist rows. */
-export function romanNumeral(n) {
-  let num = n;
-  let out = '';
-  for (const [value, symbol] of ROMAN) {
-    while (num >= value) {
-      out += symbol;
-      num -= value;
-    }
-  }
-  return out;
 }
 
 /**
@@ -49,6 +31,7 @@ export function romanNumeral(n) {
  */
 export function confirmModal({ message, confirmLabel = 'Delete', cancelLabel = 'Keep' }) {
   return new Promise((resolve) => {
+    const previouslyFocused = document.activeElement;
     const scrim = document.createElement('div');
     scrim.className = 'menu-scrim';
     scrim.innerHTML = `
@@ -66,6 +49,9 @@ export function confirmModal({ message, confirmLabel = 'Delete', cancelLabel = '
       scrim.removeEventListener('click', onScrimClick);
       document.removeEventListener('keydown', onKeydown);
       scrim.remove();
+      if (previouslyFocused && typeof previouslyFocused.focus === 'function') {
+        previouslyFocused.focus();
+      }
       resolve(result);
     };
     const onScrimClick = (e) => {
@@ -74,7 +60,28 @@ export function confirmModal({ message, confirmLabel = 'Delete', cancelLabel = '
       if (btn) cleanup(btn.dataset.action === 'confirm');
     };
     const onKeydown = (e) => {
-      if (e.key === 'Escape') cleanup(false);
+      if (e.key === 'Escape') {
+        cleanup(false);
+        return;
+      }
+      if (e.key === 'Tab') {
+        const focusables = Array.from(scrim.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'));
+        if (!focusables.length) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        } else if (!scrim.contains(document.activeElement)) {
+          // Focus escaped the dialog (shouldn't normally happen, but guards
+          // against it) — pull it back in.
+          e.preventDefault();
+          first.focus();
+        }
+      }
     };
     scrim.addEventListener('click', onScrimClick);
     document.addEventListener('keydown', onKeydown);

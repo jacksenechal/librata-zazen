@@ -2,7 +2,7 @@ import { icon } from '../icons.js';
 import { escapeHtml, formatClock, statLine, confirmModal } from './util.js';
 
 export function render(root, ctx) {
-  const { store, navigate, params } = ctx;
+  const { store, audio, navigate, params } = ctx;
   const sessionId = params?.sessionId;
   const session = store.getSession(sessionId) || store.getCurrentSession();
   if (!session) {
@@ -28,6 +28,7 @@ export function render(root, ctx) {
 
   const closing = session.closing;
   const closingBellWord = closing.count === 1 ? 'bell' : 'bells';
+  const closingSoundName = audio.SOUNDS.find((s) => s.id === closing.soundId)?.name;
 
   root.innerHTML = `
     <div class="screen-inner session-editor-screen">
@@ -45,7 +46,7 @@ export function render(root, ctx) {
           <div class="section-row-reorder" aria-hidden="true"></div>
           <button type="button" class="section-row-main" data-action="edit-closing">
             <span class="section-row-name">Closing</span>
-            <span class="section-row-caption caption">${statLine([`${closing.count} ${closingBellWord}`])}</span>
+            <span class="section-row-caption caption">${statLine([`${closing.count} ${closingBellWord}`, closingSoundName])}</span>
           </button>
         </li>
       </ul>

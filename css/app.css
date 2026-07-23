@@ -78,6 +78,17 @@ html, body {
 .icon-btn:active { filter: brightness(0.94); }
 .icon-btn:focus-visible { outline: 1px solid var(--ink-quiet, var(--fg-pearl-soft)); outline-offset: 2px; }
 
+/* tokens.css defines .btn-ghost's look; it has no min-height there, so it
+   falls short of the >=48px touch target. Extend it here (app.css owns
+   layout/sizing, tokens.css owns the palette recipe) without touching the
+   quiet text-only look. */
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--space-9);
+}
+
 .ghost-row {
   display: flex;
   align-items: center;
@@ -105,6 +116,8 @@ html, body {
 }
 
 .librata-mark-icon { color: var(--fg-pearl); width: 40px; height: 40px; }
+
+.text-center { text-align: center; }
 
 .sr-only {
   position: absolute;
@@ -157,7 +170,7 @@ html, body {
 .home-subtitle {
   font-family: var(--font-ui);
   font-weight: var(--fw-semibold);
-  font-size: 10px;
+  font-size: var(--fs-micro);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--fg-pearl-quiet);
@@ -242,6 +255,7 @@ html, body {
 
 .session-row-duration {
   font-size: var(--fs-h3);
+  font-weight: var(--fw-light);
   color: var(--fg-pearl-soft);
   flex-shrink: 0;
 }
@@ -318,6 +332,7 @@ html, body {
 }
 .player-progress-labels span {
   font-family: var(--font-numeric);
+  font-weight: var(--fw-light);
   font-size: var(--fs-micro);
   color: var(--fg-pearl-quiet);
   font-variant-numeric: lining-nums tabular-nums;
@@ -354,7 +369,7 @@ html, body {
   position: absolute;
   bottom: 4px;
   font-family: var(--font-ui);
-  font-size: 9px;
+  font-size: var(--fs-micro);
   font-weight: var(--fw-semibold);
   color: var(--fg-pearl);
   pointer-events: none;
@@ -399,6 +414,7 @@ html, body {
 .track-row:active { filter: brightness(0.94); }
 .track-numeral {
   font-family: var(--font-numeric);
+  font-weight: var(--fw-light);
   font-size: var(--fs-h3);
   color: inherit;
 }
@@ -412,6 +428,7 @@ html, body {
 }
 .track-duration {
   font-family: var(--font-numeric);
+  font-weight: var(--fw-light);
   font-size: var(--fs-body);
   font-variant-numeric: lining-nums tabular-nums;
 }
@@ -510,7 +527,25 @@ html, body {
   background: transparent;
   border: 0;
   color: var(--fg-pearl-quiet);
+  position: relative;
   cursor: pointer;
+}
+/* Visual carets stay 28x22 (intentional); expand the hit area outward —
+   sideways generously, and vertically away from the sibling caret (each
+   button's shared inner edge stays put so the pair never overlaps). */
+.section-row-reorder button::before {
+  content: "";
+  position: absolute;
+  left: -10px;
+  right: -10px;
+}
+.section-row-reorder button:first-child::before {
+  top: -13px;
+  bottom: 0;
+}
+.section-row-reorder button:last-child::before {
+  top: 0;
+  bottom: -13px;
 }
 .section-row-reorder button:hover { color: var(--fg-pearl-soft); }
 .section-row-reorder button:disabled { opacity: 0.3; cursor: default; }
@@ -581,9 +616,17 @@ html, body {
   border-radius: var(--radius-pill);
   border: 1px solid var(--border-hairline-dark);
   background: transparent;
+  position: relative;
   cursor: pointer;
   padding: 0;
   transition: background var(--dur-quick) var(--ease-poise), filter var(--dur-quick) var(--ease-poise);
+}
+/* Visual circle stays 32px (intentional); expand the actual hit area to
+   the >=48px minimum touch target without widening the ring itself. */
+.bell-circle::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
 }
 .bell-circle.is-filled { background: var(--fg-pearl); }
 .bell-circle:active { filter: brightness(0.94); }
@@ -594,7 +637,7 @@ html, body {
   justify-content: center;
   gap: var(--space-4);
 }
-.gap-stepper .numeric { font-size: var(--fs-h3); min-width: 3ch; text-align: center; }
+.gap-stepper .numeric { font-weight: var(--fw-light); font-size: var(--fs-h3); min-width: 3ch; text-align: center; }
 
 .sound-list { display: flex; flex-direction: column; }
 .sound-row {
@@ -691,6 +734,13 @@ html, body {
   padding: 0;
   flex-shrink: 0;
 }
+/* Visual track stays 44x26 (intentional); the pseudo-element quietly
+   extends the actual hit area to the >=48px minimum touch target. */
+.toggle::before {
+  content: "";
+  position: absolute;
+  inset: -11px -2px;
+}
 .toggle-knob {
   position: absolute;
   top: 2px;
@@ -738,7 +788,6 @@ html, body {
   max-width: 320px;
   text-align: left;
   color: var(--fg-pearl-soft);
-  background: var(--card-face-edge, var(--border-hairline-dark));
   background: transparent;
   border: 1px solid var(--paper-edge, var(--border-hairline-dark));
   border-radius: var(--radius-md);

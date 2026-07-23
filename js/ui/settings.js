@@ -59,7 +59,7 @@ Connectivity   100% offline</pre>
   });
   // 'change' fires once on release (mouse up, touch end, or committed key step).
   slider.addEventListener('change', () => {
-    const soundId = defaultPreviewSound(audio);
+    const soundId = previewSoundId(store, audio);
     if (soundId) audio.previewStrike(soundId);
   });
 
@@ -75,6 +75,9 @@ Connectivity   100% offline</pre>
   });
 }
 
-function defaultPreviewSound(audio) {
-  return audio.SOUNDS?.[0]?.id;
+/** The bell heard when releasing the volume slider: the current session's
+ * first section's sound, falling back to the house default sound. */
+function previewSoundId(store, audio) {
+  const session = store.getCurrentSession();
+  return session?.sections?.[0]?.bells?.soundId || audio.SOUNDS?.[0]?.id;
 }

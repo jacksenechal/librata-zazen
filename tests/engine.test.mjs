@@ -255,6 +255,49 @@ test('completion stops ticking, fires "complete" once, and persists final positi
   engine.destroy();
 });
 
+// --- resume-past-end (a saved position >= the session's, possibly since
+// shortened, total must not wedge playback) ------------------------------
+
+test('play() at/past a saved position already at the end completes immediately, without ringing', (t) => {
+  mockClock(t);
+  const audio = fakeAudio();
+  let completeCount = 0;
+  const engine = createEngine({ now: () => Date.now(), audio });
+  const session = shortSession(); // total = 3
+
+  engine.on('complete', () => completeCount++);
+  engine.load(session, 3); // e.g. a saved position from before the session was shortened
+  engine.play();
+
+  assert.equal(audio.calls.filter((c) => c.type === 'ring').length, 0);
+  assert.equal(completeCount, 1);
+  const state = engine.getState();
+  assert.equal(state.completed, true);
+  assert.equal(state.playing, false);
+  assert.equal(state.positionSec, 3);
+
+  engine.destroy();
+});
+
+test('play() resumed just short of the end proceeds normally, completing via the closing boundary with rings', (t) => {
+  const advance = mockClock(t);
+  const audio = fakeAudio();
+  const engine = createEngine({ now: () => Date.now(), audio });
+  const session = shortSession(); // total = 3, boundaries at 1, 2, 3
+
+  engine.load(session, 2.9); // just short of the end, inside the last section
+  engine.play();
+  assert.equal(audio.calls.filter((c) => c.type === 'ring').length, 0); // pos !== 0, no opening ring
+
+  advance(300); // past the next 250ms tick, crossing 3s (total) naturally
+  const rings = audio.calls.filter((c) => c.type === 'ring');
+  assert.equal(rings.length, 1);
+  assert.deepEqual(rings[0].spec, session.closing);
+  assert.equal(engine.getState().completed, true);
+
+  engine.destroy();
+});
+
 // --- skip semantics -------------------------------------------------------
 
 test('skipBack: >3s into a section returns to its start, else to the previous section', (t) => {
@@ -461,6 +504,19 @@ test('store: playback save/get/clear round-trip', async () => {
 
   store.clearPlayback();
   assert.equal(store.getSavedPlayback(), null);
+});
+
+test('store: a shape-invalid document is stashed under the corrupt key and the store reseeds', async () => {
+  globalThis.localStorage = new MemoryStorage();
+  const invalid = { schema: 1, sessions: 'not-an-array', settings: {}, playback: null };
+  globalThis.localStorage.setItem('librata.zazen.v1', JSON.stringify(invalid));
+
+  const store = await import(`../js/store.js?instance=${Math.random()}`);
+
+  assert.equal(store.getSessions().length, 4); // fell back to the seed sessions
+  const stashed = globalThis.localStorage.getItem('librata.zazen.v1.corrupt');
+  assert.ok(stashed);
+  assert.deepEqual(JSON.parse(stashed), invalid);
 });
 
 test('store: migration hook is a no-op for a doc already at the current schema', async () => {

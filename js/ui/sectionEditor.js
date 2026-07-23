@@ -40,8 +40,8 @@ export function render(root, ctx) {
         <button type="button" class="icon-btn" data-action="back" aria-label="Back">${icon('caret-left', 22)}</button>
         <span class="topbar-spacer" aria-hidden="true"></span>
       </header>
-      ${isClosing ? '<h1 class="h2" style="text-align:center;">Closing</h1>' : `
-        <input type="text" class="editor-name-input" data-field="name" value="${escapeHtml(section.name)}" aria-label="Section name" placeholder="Section name" style="text-align:center;" />
+      ${isClosing ? '<h1 class="h2 text-center">Closing</h1>' : `
+        <input type="text" class="editor-name-input text-center" data-field="name" value="${escapeHtml(section.name)}" aria-label="Section name" placeholder="Section name" />
       `}
       ${isClosing ? '' : `
         <div class="duration-stepper">

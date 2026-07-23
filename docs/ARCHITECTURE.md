@@ -22,6 +22,8 @@ js/engine.js               playback engine (core agent)
 js/icons.js                inline SVG icon set (UI agent)
 js/main.js                 boot, router, screen wiring (UI agent)
 js/ui/home.js …            one module per screen (UI agent)
+js/ui/util.js              UI helpers: escapeHtml, statLine, confirmModal, bindHold;
+                           re-exports formatClock/romanNumeral from js/format.js
 sw.js                      service worker (PWA agent)
 manifest.webmanifest       (PWA agent)
 assets/fonts/**            self-hosted WOFF2 (PWA agent downloads)
@@ -145,8 +147,10 @@ Rules (PLAN §2):
 - `js/main.js` boots: apply theme from settings to `<html data-theme>`, register SW,
   create engine, render screens, first-gesture `unlockAudio()`.
 - Screens: plain modules `export function render(root, ctx)`; `ctx` = `{ store, engine,
-  audio, navigate(screen, params) }`. Navigation is in-memory (no URL routing); screen
-  transition = opacity fade `--dur-base` `--ease-poise`.
+  audio, navigate(screen, params), params }` (params passed through from navigate).
+  Navigation is in-memory (no URL routing); screen transition = opacity fade
+  `--dur-base` `--ease-poise`. The section editor doubles as the closing-bells editor
+  via `params.closing` (hides name/duration/remove; writes `session.closing`).
 - `js/icons.js`: `export function icon(name, size = 24)` → SVG string, Phosphor-Thin
   style (viewBox 0 0 256 256, stroke currentColor, stroke-width 8, fill none, round
   caps). Names: `pencil gear-six plus minus caret-left caret-down caret-up play pause

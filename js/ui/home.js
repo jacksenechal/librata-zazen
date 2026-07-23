@@ -5,9 +5,17 @@ export function render(root, ctx) {
   const { store, engine, navigate } = ctx;
   const session = store.getCurrentSession();
   const saved = store.getSavedPlayback();
-  const hasResume = !!(saved && session && saved.sessionId === session.id);
-
   const totalSec = session ? store.sessionDuration(session) : 0;
+  const isStaleSavedPosition = !!(saved && session && saved.sessionId === session.id && saved.positionSec >= totalSec);
+  const hasResume = !!(saved && session && saved.sessionId === session.id) && !isStaleSavedPosition;
+
+  if (isStaleSavedPosition) {
+    // Defer past this synchronous render: store.clearPlayback() notifies
+    // subscribers (including main.js's rerenderCurrent), which would
+    // otherwise re-enter this same render function while it's still on
+    // the stack.
+    queueMicrotask(() => store.clearPlayback());
+  }
   const sectionCount = session ? session.sections.length : 0;
   const caption = statLine([
     formatClock(totalSec),

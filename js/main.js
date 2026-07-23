@@ -34,6 +34,10 @@ let dispose = null;
 
 function applyTheme() {
   document.documentElement.setAttribute('data-theme', store.getSettings().theme);
+  const themeColor = getComputedStyle(document.documentElement).getPropertyValue('--sky-midnight').trim();
+  if (themeColor) {
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', themeColor);
+  }
 }
 
 function reducedMotion() {
@@ -140,6 +144,7 @@ const engine = createEngine({
   onPersist: (sessionId, positionSec) => store.savePlayback(sessionId, positionSec),
 });
 engine.on('complete', () => store.clearPlayback());
+engine.setKeepAwake(store.getSettings().keepAwake);
 
 applyTheme();
 
@@ -166,6 +171,7 @@ window.addEventListener('keydown', unlockOnce, { once: true, capture: true });
 store.subscribe(() => {
   applyTheme();
   if (audioUnlocked) audio.setVolume(store.getSettings().volume);
+  engine.setKeepAwake(store.getSettings().keepAwake);
   rerenderCurrent();
 });
 

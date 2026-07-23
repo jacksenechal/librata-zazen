@@ -7,6 +7,7 @@
 import { SOUNDS } from './audio.js';
 
 const STORAGE_KEY = 'librata.zazen.v1';
+const CORRUPT_STORAGE_KEY = 'librata.zazen.v1.corrupt';
 const CURRENT_SCHEMA = 1;
 
 const DEFAULT_SOUND_ID = SOUNDS[1].id; // 'rin-medium' — the house default
@@ -42,6 +43,61 @@ function writeStorage() {
 function migrate(raw) {
   if (raw.schema === CURRENT_SCHEMA) return raw;
   return { ...raw, schema: CURRENT_SCHEMA };
+}
+
+/**
+ * Minimal shape guard against a corrupted/foreign localStorage document
+ * (hand-edited, from an incompatible build, truncated write, etc.) — checks
+ * just enough structure that the rest of store.js can safely assume it, not
+ * full schema validation.
+ */
+function isValidDoc(raw) {
+  if (!raw || typeof raw !== 'object') return false;
+  if (typeof raw.schema !== 'number') return false;
+  if (!Array.isArray(raw.sessions) || raw.sessions.length === 0) return false;
+  if (!raw.sessions.every(isValidSession)) return false;
+  if (!isValidSettings(raw.settings)) return false;
+  if (raw.playback !== null && !isValidPlayback(raw.playback)) return false;
+  return true;
+}
+
+function isValidSession(s) {
+  if (!s || typeof s !== 'object') return false;
+  if (typeof s.id !== 'string' || typeof s.name !== 'string') return false;
+  if (!Array.isArray(s.sections) || !s.sections.every(isValidSection)) return false;
+  if (!isValidBells(s.closing)) return false;
+  return true;
+}
+
+function isValidSection(s) {
+  return !!s && typeof s === 'object' && typeof s.id === 'string' && typeof s.durationSec === 'number' && isValidBells(s.bells);
+}
+
+function isValidBells(b) {
+  return !!b && typeof b === 'object' && typeof b.count === 'number' && typeof b.gapSec === 'number' && typeof b.soundId === 'string';
+}
+
+function isValidSettings(settings) {
+  return !!settings && typeof settings === 'object'
+    && typeof settings.volume === 'number'
+    && typeof settings.keepAwake === 'boolean'
+    && typeof settings.theme === 'string';
+}
+
+function isValidPlayback(playback) {
+  return !!playback && typeof playback === 'object'
+    && typeof playback.sessionId === 'string'
+    && typeof playback.positionSec === 'number';
+}
+
+/** Best-effort stash of a rejected document, for later inspection/recovery. */
+function stashCorrupt(raw) {
+  if (!hasStorage()) return;
+  try {
+    globalThis.localStorage.setItem(CORRUPT_STORAGE_KEY, JSON.stringify(raw));
+  } catch {
+    // storage unavailable/full — nothing more we can do
+  }
 }
 
 // crypto.randomUUID() is only defined in secure contexts (https or
@@ -133,9 +189,10 @@ function seedDoc() {
 function ensureLoaded() {
   if (doc) return;
   const raw = readStorage();
-  if (raw) {
+  if (raw && isValidDoc(raw)) {
     doc = migrate(raw);
   } else {
+    if (raw) stashCorrupt(raw);
     doc = seedDoc();
     writeStorage();
   }

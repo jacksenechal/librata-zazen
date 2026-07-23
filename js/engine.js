@@ -271,6 +271,13 @@ export function createEngine({ now = () => Date.now(), audio, onPersist } = {}) 
 
   function play() {
     if (!session || playing) return;
+    if (pos >= total) {
+      // Position is already at/past the end (e.g. resuming a saved place in
+      // a session that was since shortened) — nothing left to naturally
+      // arrive at, so complete immediately without ringing closing bells.
+      finishSession();
+      return;
+    }
     playBasePos = pos;
     playStartedAt = now();
     playing = true;
