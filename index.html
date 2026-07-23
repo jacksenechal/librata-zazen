@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Librata Zazen</title>
+  <meta name="description" content="A quiet meditation timer." />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#EDEDEB" />
+  <link rel="icon" href="assets/logo/librata-app-icon.svg" />
+  <link rel="apple-touch-icon" href="assets/logo/librata-app-icon.svg" />
+  <script>
+    (function () {
+      try {
+        var raw = localStorage.getItem('librata.zazen.v1');
+        var theme = 'carta';
+        if (raw) {
+          var doc = JSON.parse(raw);
+          if (doc && doc.settings && doc.settings.theme) theme = doc.settings.theme;
+        }
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'carta');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <div id="app">
+    <div id="screen-home" class="screen"></div>
+    <div id="screen-library" class="screen"></div>
+    <div id="screen-player" class="screen"></div>
+    <div id="screen-editor" class="screen"></div>
+    <div id="screen-section-editor" class="screen"></div>
+    <div id="screen-settings" class="screen"></div>
+  </div>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
