@@ -58,13 +58,24 @@ function sameParams(a, b) {
 }
 
 const darkSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+// Best-effort e-ink hardware signals: a slow-refresh panel or a monochrome
+// display. Many e-ink Android browsers (Onyx Boox, Supernote, Boox Palma)
+// still report as fast/color, so this under-detects rather than over-
+// detects — it's a bonus for the browsers that DO report it honestly, not
+// a substitute for the explicit Carta/E-ink radio in Settings.
+const slowUpdateQuery = window.matchMedia('(update: slow)');
+const monochromeQuery = window.matchMedia('(monochrome)');
 
-/** Resolves the stored theme setting to a concrete theme: 'auto' follows the
- * OS light/dark preference (light -> carta, dark -> dawn); anything else
- * passes through unchanged. */
+/** Resolves the stored theme setting to a concrete theme: 'auto' checks for
+ * e-ink hardware signals first (-> eink), then falls back to the OS
+ * light/dark preference (light -> carta, dark -> dawn); anything else
+ * passes through unchanged. Keep this in sync with index.html's inline
+ * pre-paint script, which duplicates this same resolution to avoid a
+ * flash of the wrong theme before main.js loads. */
 function resolveTheme(theme) {
-  if (theme === 'auto') return darkSchemeQuery.matches ? 'dawn' : 'carta';
-  return theme;
+  if (theme !== 'auto') return theme;
+  if (slowUpdateQuery.matches || monochromeQuery.matches) return 'eink';
+  return darkSchemeQuery.matches ? 'dawn' : 'carta';
 }
 
 function applyTheme() {
@@ -76,9 +87,11 @@ function applyTheme() {
 }
 
 // Follow the system live while the setting is 'auto'.
-darkSchemeQuery.addEventListener('change', () => {
-  if (store.getSettings().theme === 'auto') applyTheme();
-});
+for (const query of [darkSchemeQuery, slowUpdateQuery, monochromeQuery]) {
+  query.addEventListener('change', () => {
+    if (store.getSettings().theme === 'auto') applyTheme();
+  });
+}
 
 function reducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;

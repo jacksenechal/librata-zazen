@@ -19,7 +19,11 @@
           if (doc && doc.settings && doc.settings.theme) theme = doc.settings.theme;
         }
         if (theme === 'auto') {
-          theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dawn' : 'carta';
+          if (window.matchMedia('(update: slow)').matches || window.matchMedia('(monochrome)').matches) {
+            theme = 'eink';
+          } else {
+            theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dawn' : 'carta';
+          }
         }
         document.documentElement.setAttribute('data-theme', theme);
       } catch (e) {

@@ -239,7 +239,7 @@ html, body {
 }
 
 .librata-mark-icon {
-  color: var(--fg-pearl);
+  color: var(--fg-pearl-soft);
   width: clamp(72px, 20vw, 104px);
   height: clamp(72px, 20vw, 104px);
 }
@@ -943,6 +943,12 @@ html, body {
   font-size: var(--fs-body);
 }
 .theme-row:active { filter: brightness(0.94); }
+
+.theme-row-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
 
 .settings-about {
   display: flex;

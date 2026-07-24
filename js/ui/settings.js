@@ -30,11 +30,18 @@ export function render(root, ctx) {
           <div class="theme-radio-list" role="radiogroup" aria-label="Theme">
             <button type="button" class="theme-row" role="radio" aria-checked="${settings.theme === 'auto'}" data-theme-option="auto">
               <span class="radio-dot" aria-hidden="true"></span>
-              <span>Auto — match the system</span>
+              <span class="theme-row-body">
+                <span>Auto — match the system</span>
+                <span class="caption">Follows the system; e-ink screens switch to E-ink when the browser reports them.</span>
+              </span>
             </button>
             <button type="button" class="theme-row" role="radio" aria-checked="${settings.theme === 'carta'}" data-theme-option="carta">
               <span class="radio-dot" aria-hidden="true"></span>
               <span>Carta — paper</span>
+            </button>
+            <button type="button" class="theme-row" role="radio" aria-checked="${settings.theme === 'eink'}" data-theme-option="eink">
+              <span class="radio-dot" aria-hidden="true"></span>
+              <span>E-ink — pure white</span>
             </button>
             <button type="button" class="theme-row" role="radio" aria-checked="${settings.theme === 'dawn'}" data-theme-option="dawn">
               <span class="radio-dot" aria-hidden="true"></span>

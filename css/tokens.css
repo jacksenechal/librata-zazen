@@ -3,7 +3,7 @@
    Source: Librata Design System (colors_and_type.css), verbatim except:
    - Google Fonts @import replaced by self-hosted fonts (offline-first).
 
-   Three themes share one token set:
+   Four themes share one token set:
 
      • Default / Theme A — DAWN  (canonical phone mode)
          Midnight → Indigo → Dawn sky gradient · Cormorant Garamond Light
@@ -18,7 +18,16 @@
          two greys, and chromatic bloom retires. Built for the reflective
          greyscale panels of Onyx Boox, Supernote, Boox Palma and kin.
 
-     • Theme C — NIGHT  (deep night sky / quiet dark mode)
+     • Theme C — E-INK  (Carta, flattened for real e-paper panels)
+         Opt in by setting  data-theme="eink"  on <html> or any wrapper.
+         Carta's grey gradients and soft shadows render poorly on real
+         e-ink hardware, so E-Ink takes Carta's palette and removes all
+         depth — pure white ground, no gradients, no shadows, no glass
+         blur. Anything that relied on a shadow for definition (notably
+         the primary button) becomes outlined or solid-filled instead.
+         SAME radii, type and motion as Carta and Dawn.
+
+     • Theme D — NIGHT  (deep night sky / quiet dark mode)
          Opt in by setting  data-theme="night"  on <html> or any wrapper.
          Night takes Dawn's own midnight-to-sunrise ramp and holds it at
          its darkest end — the gradient never completes its journey to
@@ -511,40 +520,42 @@ code, .mono {
   --ink-faint:       #A8A8A8;   /* dashed/empty-slot lines, disabled */
   --paper-edge:      #E5E5E5;   /* faint inter-section hairline */
 
-  /* ---- The sky, recoloured to a soft grey "paper dawn" ----
-     Same vertical gradient structure as Dawn, top → bottom, but neutral
-     and light so dark ink stays legible on reflective e-paper. */
-  --sky-midnight:   #DCDCDA;   /* zenith — the deepest grey, still light */
-  --sky-indigo:     #E4E4E2;
-  --sky-twilight:   #EDEDEB;
-  --sky-dawn:       #F3F3F1;
-  --sky-mist:       #F8F8F6;
-  --sky-cream:      #FCFCFB;   /* warm-free horizon */
+  /* ---- The sky, recoloured to a warm, light "paper dawn" ----
+     Same vertical gradient structure as Dawn, top → bottom, lightening
+     to white — but warmed toward paper/cream rather than neutral grey.
+     An earlier pass leaned too grey and read heavy at the zenith; this
+     ramp is lighter overall with a faint warm cast (never yellow). */
+  --sky-midnight:   #E9E6E0;   /* zenith — warm light paper, not grey */
+  --sky-indigo:     #EEEBE5;
+  --sky-twilight:   #F2F0EA;
+  --sky-dawn:       #F6F4EF;
+  --sky-mist:       #FAF8F4;
+  --sky-cream:      #FCFBF8;   /* warm horizon, a whisper of cream */
   --sky-snow:       #FFFFFF;   /* paper at the base */
 
-  /* Carta's tonal range is far narrower than Dawn's (only ~35 levels of
-     grey), so Dawn's stop percentages make the gradient resolve to white
-     by ~65% and leave the lower third a flat slab — which Dawn hid behind
-     the mountains. With no mountains on e-paper, redistribute the stops
-     evenly so the wash spans the full screen height, reaching pure white
-     only at the very bottom. */
+  /* Carta's tonal range is far narrower than Dawn's, so Dawn's stop
+     percentages make the gradient resolve to white too early and leave
+     the lower third a flat slab — which Dawn hid behind the mountains.
+     With no mountains on e-paper, redistribute the stops evenly so the
+     wash spans the full screen height, reaching pure white only at the
+     very bottom. */
   --gradient-sky: linear-gradient(
     180deg,
-    #D6D6D4 0%,
-    #E1E1DF 28%,
-    #ECECEA 54%,
-    #F4F4F2 78%,
-    #FBFBF9 92%,
+    #E9E6E0 0%,
+    #EEEBE5 28%,
+    #F3F1EC 54%,
+    #F8F6F2 78%,
+    #FCFBF9 92%,
     #FFFFFF 100%
   );
 
-  /* Shorter night-sky gradient (menus, modals) → light paper-grey.
+  /* Shorter night-sky gradient (menus, modals) → warm light paper.
      Kept close to the title sky so overlays read airy, not heavy. */
   --gradient-sky-night: linear-gradient(
     180deg,
-    #EAEAE8 0%,
-    #F2F2F0 55%,
-    #FAFAF8 100%
+    #F0EDE7 0%,
+    #F5F3EE 55%,
+    #FAF8F4 100%
   );
 
   /* ---- Bloom retires; the horizon shimmer is colourless ----
@@ -683,7 +694,183 @@ code, .mono {
 [data-theme="carta"] .btn-primary:active { background: rgba(244, 244, 242, 0.96); }
 
 /* =====================================================================
-   THEME C — NIGHT  (deep night sky / quiet dark mode)
+   THEME C — E-INK  (Carta with all depth removed, for real e-paper)
+
+   Opt in by setting  data-theme="eink"  on <html>, <body>, or any
+   wrapper element.
+
+   Design intent — Carta was meant to be the e-ink theme, but its grey
+   gradients and soft shadows render poorly on real reflective e-paper
+   panels: the grey ramp bands and the shadows either vanish (no
+   antialiasing) or ghost after a partial refresh. E-Ink is Carta with
+   every trace of depth removed —
+
+     · the sky gradient flattens to pure white, top to bottom
+     · every shadow token drops to none
+     · frosted glass becomes solid white, blur removed
+     · anything that relied on a shadow for definition (the primary
+       button, chief among them) becomes outlined or solid-filled
+
+   Radii, type, and motion are UNCHANGED — same shared structure as
+   Carta and Night. E-Ink runtimes are expected to skip CSS transitions
+   entirely (see the Carta motion note above); the tokens still carry
+   360ms so the same component tree keeps working everywhere else.
+
+   This block is deliberately self-contained rather than layered on
+   top of [data-theme="carta"] — CSS attribute selectors don't cascade
+   from one to the other, so Carta's values are duplicated here first,
+   then flattened. ===================================================================== */
+[data-theme="eink"] {
+  /* ---- The paper-and-ink ramp — identical to Carta ---- */
+  --paper:           #FFFFFF;
+  --ink:             #000000;
+  --ink-soft:        #1A1A1A;
+  --ink-quiet:       #6B6B6B;
+  --ink-faint:       #A8A8A8;
+  --paper-edge:      #E5E5E5;
+
+  /* ---- The sky flattens to pure white — no gradient at all ----
+     A plain colour is valid everywhere `background: var(--gradient-sky)`
+     is used; nothing in this system reaches for it as a background-image,
+     so there is no need for a degenerate linear-gradient(#fff,#fff). */
+  --sky-midnight:   #FFFFFF;
+  --sky-indigo:     #FFFFFF;
+  --sky-twilight:   #FFFFFF;
+  --sky-dawn:       #FFFFFF;
+  --sky-mist:       #FFFFFF;
+  --sky-cream:      #FFFFFF;
+  --sky-snow:       #FFFFFF;
+  --gradient-sky:       #FFFFFF;
+  --gradient-sky-night: #FFFFFF;
+
+  /* ---- Bloom retires entirely — no luminance whisper, no chroma ---- */
+  --bloom-rose:     #E5E5E5;
+  --bloom-violet:   #E5E5E5;
+  --bloom-mint:     #E5E5E5;
+  --bloom-amber:    #E5E5E5;
+  --bloom-blue:     #E5E5E5;
+  --overlay-dawn-bloom: none;
+
+  /* ---- Accents — same graded greys Carta uses ---- */
+  --accent-violet:    #6F6F71;
+  --accent-periwinkle:#7E7E80;
+  --accent-mint:      #8C8C8E;
+  --accent-rose:      #6A6A6C;
+  --accent-amber:     #7A7A7C;
+
+  /* Primary-action shimmer would be a gradient — flatten to plain white.
+     (Unused by the current .btn-primary override below, which paints
+     its own flat fill, but kept flat here for any component that reads
+     the token directly.) */
+  --shimmer-bloom:       #FFFFFF;
+  --shimmer-bloom-hover: #FFFFFF;
+  --shimmer-sheen:       transparent;
+
+  /* Special-occasion "gold" → neutral mid-grey, same as Carta */
+  --gold-warm:      #8A8A8A;
+  --gold-glow:      #B2B2B2;
+  --gold-deep:      #6A6A6A;
+
+  /* ---- Suits — same two greys as Carta ---- */
+  --ember:          #6E6E70;
+  --ember-deep:     #565658;
+  --slate-suit:     #1C1C1E;
+  --slate-suit-2:   #0C0C0E;
+
+  /* ---- Foreground — ink on white paper ---- */
+  --fg-pearl:       #181818;
+  --fg-pearl-soft:  rgba(24, 24, 24, 0.66);
+  --fg-pearl-quiet: rgba(24, 24, 24, 0.46);
+  --fg-indigo:      #141414;
+  --fg-indigo-soft: rgba(20, 20, 20, 0.66);
+  --fg-indigo-quiet:rgba(20, 20, 20, 0.46);
+
+  /* ---- Surfaces — flat white, no frost, no blur ---- */
+  --card-face:      #FFFFFF;
+  --card-face-edge: #E2E2E0;
+  --card-back:      #4A4A4C;
+  --glass-dark:     #FFFFFF;   /* was a translucent frost — now solid */
+  --glass-light:    #FFFFFF;
+  --glass-blur:     none;
+  --scrim:          rgba(0, 0, 0, 0.18);   /* a light, flat wash — still dims the sheet behind it */
+
+  --border-hairline-light: rgba(20, 20, 20, 0.10);
+  --border-hairline-dark:  rgba(20, 20, 20, 0.08);
+  --border-card:           rgba(20, 20, 20, 0.12);
+
+  /* ---- Control surface — Carta's ink values, edges bumped slightly.
+     E-ink has no antialiasing subtlety, so hairline edges that read
+     fine on an OLED subpixel ramp can vanish on a reflective panel;
+     nudge the resting/hover alphas up so they hold. ---- */
+  --control-edge:        rgba(20, 20, 20, 0.35);
+  --control-edge-strong: rgba(20, 20, 20, 0.50);
+  --control-fill:        rgba(20, 20, 20, 0.06);
+  --control-fill-active: rgba(20, 20, 20, 0.85);
+
+  /* ---- Shadows — ALL retired. Depth on e-ink is drawn with outlines
+     and solid fills, never elevation. ---- */
+  --shadow-card:       none;
+  --shadow-card-lifted: none;
+  --shadow-glow-pearl: none;
+  --shadow-glass:      none;
+  --shadow-modal:      none;
+
+  /* Radii, motion, typography, tracking — inherited from Carta's shared
+     structure on purpose. See the design intent note above. */
+}
+
+/* Mountains never render on e-paper — same as Carta. */
+[data-theme="eink"] .librata-bg-mountains {
+  display: none !important;
+}
+
+/* E Ink can't render translucency cleanly, and there is no blur budget
+   on a real panel — sheets/menus/panels must be fully opaque and flat. */
+[data-theme="eink"] .menu-sheet,
+[data-theme="eink"] .menu-scrim > div,
+[data-theme="eink"] .glass-panel {
+  background: #FFFFFF !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+  border: 1px solid rgba(20, 20, 20, 0.35);
+}
+[data-theme="eink"] .menu-scrim {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* The title-screen sun glow drops out entirely — no chroma, no glow,
+   no pulse, nothing for a static panel to render. */
+[data-theme="eink"] .librata-bg-sun {
+  display: none !important;
+}
+
+/* Secondary-button press — same neutral ink wash as Carta. */
+[data-theme="eink"] .btn-secondary:active { background: rgba(20, 20, 22, 0.10); }
+[data-theme="eink"] .btn-secondary {
+  background: #FFFFFF;
+  border: 1px solid rgba(20, 20, 20, 0.35);
+  box-shadow: none;
+}
+
+/* The primary button relied on a soft shadow for its lift off the page —
+   with shadows gone, it needs an outline instead to read as pressable.
+   Outlined, not filled: solid ink on white would invert the whole
+   e-ink palette for one button and fight the "light paper" brief. */
+[data-theme="eink"] .btn-primary {
+  color: var(--ink-soft);
+  background: #FFFFFF;
+  border: 1px solid var(--ink-soft);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+}
+[data-theme="eink"] .btn-primary:hover  { background: rgba(20, 20, 20, 0.04); }
+[data-theme="eink"] .btn-primary:active { background: rgba(20, 20, 20, 0.08); transform: translateY(1px); }
+
+/* =====================================================================
+   THEME D — NIGHT  (deep night sky / quiet dark mode)
 
    Opt in by setting  data-theme="night"  on <html>, <body>, or any
    wrapper element.
